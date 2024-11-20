@@ -32,7 +32,9 @@ def create_tracker_loader(loader: Loader, record: set[str]):
 
 
 class TrackerMetaFinder(PathFinder):
-    """custom meta path finder to time the import of modules"""
+    """
+    Custom meta path finder to time the import of modules
+    """
 
     record: set[str] = set()
 
@@ -59,7 +61,9 @@ def attach():
 
 
 def detach():
-    sys.meta_path = [i for i in sys.meta_path if not isinstance(i, TrackerMetaFinder)]
+    sys.meta_path = [
+        i for i in sys.meta_path if not isinstance(i, TrackerMetaFinder)
+    ]
 
 
 def get_tracker_report():
