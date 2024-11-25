@@ -1,8 +1,7 @@
 import argparse
 from ltrim.moduify.moduifier import Moduify
-from ltrim.moduify.utils import magic_attributes
 
-__all__ = ["Moduify", "magic_attributes"]
+__all__ = ["Moduify"]
 
 
 def main():

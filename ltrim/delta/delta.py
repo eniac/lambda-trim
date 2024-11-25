@@ -2,7 +2,8 @@ import ast
 import sys
 import importlib
 from ltrim.moduify import Moduify
-from ltrim.utils import run_target, mkdirp
+from ltrim.utils import mkdirp, MAGIC_ATTRIBUTES
+from ltrim.delta.utils import run_target, chunks, flatten
 
 
 class DeltaDebugger:
@@ -10,11 +11,13 @@ class DeltaDebugger:
     Delta Debugger instance
     """
 
-    def __init__(self, target, module_name, marked_attrs):
+    def __init__(self, target, module_name, marked_attributes):
 
+        # Target program to run
         self.target = target
 
-        self.marked_attrs = marked_attrs
+        # Attributes that must be kept
+        self.marked_attrs = marked_attributes
 
         # Initialize the Moduify instance
         self.module_name = module_name
@@ -25,16 +28,18 @@ class DeltaDebugger:
 
         self.stats = {"iterations": 0, "attrs": (0, 0)}
 
+        # Create a logging directory for intermediate results
         mkdirp("log/" + self.module_name + "/iterations")
 
         process = run_target(self.target)
 
         if process.returncode == 0:
             self.original_output = str(process.stdout, "utf-8")
-            logger.info("Original output: %s", self.original_output)
+            # logger.info("Original output: %s", self.original_output)
         else:
             print(f"Error running target program {process.stderr}")
-            sys.exit(1)
+            # sys.exit(1)
+        sys.exit(1)
 
     def oracle(self, attributes):
         """
@@ -73,20 +78,21 @@ class DeltaDebugger:
 
         except Exception as e:
 
-            logger.error("Error modifying module: %s", e)
+            # logger.error("Error modifying module: %s", e)
+            print(f"Error modifying module: {e}")
 
             return False
 
         process = run_target(self.target)
 
         if process.returncode == 0:
-            logger.info("Output: %s", str(process.stdout, "utf-8"))
+            # logger.info("Output: %s", str(process.stdout, "utf-8"))
             output = str(process.stdout, "utf-8")
 
             if output != self.original_output:
-
-                logger.info("Output changed: %s", output)
-                logger.info("Original output: %s", self.original_output)
+                pass
+                # logger.info("Output changed: %s", output)
+                # logger.info("Original output: %s", self.original_output)
 
             return output == self.original_output
 
@@ -103,34 +109,34 @@ class DeltaDebugger:
 
         print("Running Delta Debugging for module " + self.module_name)
 
-        logger.info("Running Delta Debugging for module %s", self.module_name)
-        logger.info("Necessary attributes: %s", self.marked_attrs)
+        # logger.info("Running Delta Debugging for module %s", self.module_name)
+        # logger.info("Necessary attributes: %s", self.marked_attrs)
 
         module = importlib.import_module(self.module_name)
 
-        members = [x for x in dir(module) if x not in magic_attributes]
-        logger.info("Module attributes: %s", members)
+        members = [x for x in dir(module) if x not in MAGIC_ATTRIBUTES]
+        # logger.info("Module attributes: %s", members)
 
-        l, n = members, 2
+        remaining_attrs, n = members, 2
 
         size_module = len(dir(module))
-        size_l_before = len(l)
+        attrs_before = len(remaining_attrs)
 
-        while n <= len(l):
+        while n <= len(remaining_attrs):
 
-            us = split_list(l, n)
+            us = chunks(remaining_attrs, n)
 
             flag = False
 
             for i in range(n):
 
                 attributes = us[i]
-                logger.info("Trying partition %s", attributes)
+                # logger.info("Trying partition %s", attributes)
 
                 if self.oracle(attributes):
 
-                    l, n = attributes, 2
-                    logger.info("REDUCED to %s", l)
+                    remaining_attrs, n = attributes, 2
+                    # logger.info("REDUCED to %s", l)
                     flag = True
 
                     break
@@ -145,15 +151,15 @@ class DeltaDebugger:
 
                 for i in range(n):
 
-                    coattributes = us.copy()
-                    coattributes.pop(i)
-                    coattributes = flatten(coattributes)
-                    logger.info("Trying complements %s", coattributes)
+                    _coattributes = us.copy()
+                    _coattributes.pop(i)
+                    coattributes = flatten(_coattributes)
+                    # logger.info("Trying complements %s", coattributes)
 
                     if self.oracle(coattributes):
 
-                        l, n = coattributes, n - 1
-                        logger.info("REDUCED to %s", l)
+                        remaining_attrs, n = coattributes, n - 1
+                        # logger.info("REDUCED to %s", l)
                         flag = True
 
                         break
@@ -164,13 +170,13 @@ class DeltaDebugger:
 
             n *= 2
 
-        size_l_after = len(l)
-        removed = size_l_before - size_l_after
+        attrs_after = len(remaining_attrs)
+        removed = attrs_before - attrs_after
         print(
             f"Removed {removed} attributes {(removed / size_module * 100):.2f}%."
         )
         self.stats["attrs"] = (size_module, removed)
-        return list(self.marked_attrs) + l
+        return list(self.marked_attrs) + remaining_attrs
 
     def get_attr_stats(self):
         """
@@ -178,10 +184,13 @@ class DeltaDebugger:
         """
         return self.stats["attrs"], self.stats["iterations"]
 
-    def finalize_module(self, attributes):
+    def finalize_module(self, attributes, local=False):
         """
         Finalize the module by removing the attributes
         left after delta debugging
+
+        :param attributes: The attributes to remove
+        :param local: If working on a local environment, restore the original directory
         """
 
         m_path = self.moduifier.module_path
@@ -219,6 +228,7 @@ class DeltaDebugger:
                 file.write(f.read())
                 file.flush()
 
+        if local:
+            self.moduifier.restore_original_directory()
+
         return m_path
-        # Uncomment the following line if you work on a local developement
-        # self.moduifier.restore_original_directory()

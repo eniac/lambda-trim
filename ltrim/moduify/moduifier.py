@@ -7,21 +7,14 @@ import ast
 import sys
 import copy
 import inspect
-import logging
 import importlib
 
 from pathlib import Path
 
-from ltrim.moduify.utils import magic_attributes
 from ltrim.transformers import RemoveAttribute, SetFix
-from ltrim.utils import cp
+from ltrim.utils import cp, MAGIC_ATTRIBUTES
 
 DEBUG = False
-
-try:
-    logger = logging.getLogger("DeltaDebugging")
-except NameError:
-    logger = logging.getLogger(__name__)
 
 
 def tag_members(members):
@@ -73,7 +66,7 @@ class Moduify:
             self.module_path = inspect.getfile(module)
 
         # Compute set of attributes that cannot be removed
-        self.needed_attrs = set(marked_attributes + magic_attributes)
+        self.needed_attrs = set(marked_attributes + MAGIC_ATTRIBUTES)
 
         # Get the complete set of attributes
         self.members = {
@@ -115,17 +108,18 @@ class Moduify:
                 and (member[0] not in self.needed_attributes)
             ]
 
-        logger.info(
-            "%d attributes to remove: %s",
-            len(members_to_remove),
-            [attr[0] for attr in members_to_remove],
-        )
+        # logger.info(
+        #     "%d attributes to remove: %s",
+        #     len(members_to_remove),
+        #     [attr[0] for attr in members_to_remove],
+        # )
 
         try:
             cp(self.backup_dir + "/" + self.basename, self.module_path)
         except Exception as e:
-            logger.error("Error copying module source")
-            logger.error(e)
+            # logger.error("Error copying module source")
+            # logger.error(e)
+            print(f"Error copying module source: {e}")
             sys.exit(1)
 
         module_ast = copy.deepcopy(self.ast)
