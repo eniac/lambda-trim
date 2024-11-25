@@ -53,11 +53,10 @@ class Moduify:
     Instance of modifier
 
     :param module_name: Name of the module to modify
-    :param build_path: Path to the build directory
     :param marked_attributes: Attributes that must be kept
     """
 
-    def __init__(self, module_name, build_path, marked_attributes):
+    def __init__(self, module_name, marked_attributes):
 
         self.module_name = module_name
 
@@ -93,9 +92,7 @@ class Moduify:
             self.ast = None
 
         # Create a backup directory and copy the module to it
-        self.backup_dir = (
-            os.path.abspath(build_path) + "/tmp/" + self.module_name
-        )
+        self.backup_dir = os.path.abspath("tmp/" + module_name)
         cp(self.module_path, self.backup_dir + "/" + self.basename)
 
     def modify(self, attributes: list, remove=False):
