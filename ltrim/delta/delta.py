@@ -23,7 +23,7 @@ class DeltaDebugger:
         self.module_name = module_name
         self.moduifier = Moduify(
             module_name=self.module_name,
-            marked_attrs=self.marked_attrs,
+            marked_attributes=self.marked_attrs,
         )
 
         self.stats = {"iterations": 0, "attrs": (0, 0)}
@@ -39,7 +39,6 @@ class DeltaDebugger:
         else:
             print(f"Error running target program {process.stderr}")
             # sys.exit(1)
-        sys.exit(1)
 
     def oracle(self, attributes):
         """
@@ -124,7 +123,7 @@ class DeltaDebugger:
 
         while n <= len(remaining_attrs):
 
-            us = chunks(remaining_attrs, n)
+            us = list(chunks(remaining_attrs, n))
 
             flag = False
 

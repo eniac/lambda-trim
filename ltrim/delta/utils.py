@@ -1,5 +1,4 @@
 import subprocess
-from itertools import chain
 
 
 def run_target(target: str, input: str = None):
@@ -26,16 +25,16 @@ def run_target(target: str, input: str = None):
         return e
 
 
-def chunks(lst, n):
+def chunks(xs, n):
     """
     Yield successive n-sized chunks from lst.
     https://stackoverflow.com/a/312464
 
-    :param lst: The list to chunk
+    :param xs: The list to chunk
     :param n: The size of the chunks
     """
-    for i in range(0, len(lst), n):
-        yield lst[i : i + n]
+    n = max(1, n)
+    return (xs[i : i + n] for i in range(0, len(xs), n))
 
 
 def flatten(lst):
@@ -44,4 +43,4 @@ def flatten(lst):
 
     :param lst: The list to flatten
     """
-    return chain.from_iterable(lst)
+    return [item for sublist in lst for item in sublist]

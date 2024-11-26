@@ -16,7 +16,7 @@ def main():
     parser.add_argument("target", help="The target program")
     parser.add_argument("module", help="The module to modify")
     parser.add_argument(
-        "attributes", type=str, nargs="+", help="Attributes to keep."
+        "attributes", type=str, nargs="*", help="Attributes to keep."
     )
 
     args = parser.parse_args()
@@ -27,5 +27,6 @@ def main():
         marked_attributes=args.attributes,
     )
 
+    print(args.attributes)
     remaining_attributes = debugger.delta_debug()
     print(f"Remaining attributes: {remaining_attributes}")
