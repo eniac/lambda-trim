@@ -27,6 +27,5 @@ def main():
         marked_attributes=args.attributes,
     )
 
-    print(args.attributes)
     remaining_attributes = debugger.delta_debug()
     print(f"Remaining attributes: {remaining_attributes}")

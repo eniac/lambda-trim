@@ -1,4 +1,40 @@
+import os
 import subprocess
+
+driver_path = os.path.abspath(__file__).replace("utils.py", "driver.py")
+
+
+class PyLambdaRunner:
+    def __init__(self, file_path, handler="handler", test_cases="data.json"):
+        self.file_path = file_path
+        self.handler = handler
+        self.test_cases = test_cases
+
+        print(f"Running {self.file_path}")
+        print(f"Handler: {self.handler}")
+        print(f"Test cases: {self.test_cases}")
+
+    def run(self):
+
+        try:
+            process = subprocess.run(
+                [
+                    "python",
+                    driver_path,
+                    self.file_path,
+                    "--handler",
+                    self.handler,
+                    "--test",
+                    self.test_cases,
+                ],
+                capture_output=True,
+                check=True,
+            )
+
+            return process
+        except subprocess.CalledProcessError as e:
+            print(e)
+            return e
 
 
 def run_target(target: str, input: str = None):
@@ -27,14 +63,15 @@ def run_target(target: str, input: str = None):
 
 def chunks(xs, n):
     """
-    Yield successive n-sized chunks from lst.
-    https://stackoverflow.com/a/312464
+    Yield n chunks from xs.
 
     :param xs: The list to chunk
-    :param n: The size of the chunks
+    :param n: The number of the chunks
     """
-    n = max(1, n)
-    return (xs[i : i + n] for i in range(0, len(xs), n))
+    k, m = divmod(len(xs), n)
+    return (
+        xs[i * k + min(i, m) : (i + 1) * k + min(i + 1, m)] for i in range(n)
+    )
 
 
 def flatten(lst):

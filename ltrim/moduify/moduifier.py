@@ -66,7 +66,7 @@ class Moduify:
             self.module_path = inspect.getfile(module)
 
         # Compute set of attributes that cannot be removed
-        self.needed_attrs = set(marked_attributes + MAGIC_ATTRIBUTES)
+        self.needed_attributes = set(marked_attributes + MAGIC_ATTRIBUTES)
 
         # Get the complete set of attributes
         self.members = {

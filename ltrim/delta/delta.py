@@ -1,14 +1,19 @@
 import ast
 import sys
 import importlib
+
 from ltrim.moduify import Moduify
 from ltrim.utils import mkdirp, MAGIC_ATTRIBUTES
-from ltrim.delta.utils import run_target, chunks, flatten
+from ltrim.delta.utils import chunks, flatten, PyLambdaRunner
 
 
 class DeltaDebugger:
     """
     Delta Debugger instance
+
+    :param target: The target program to run
+    :param module_name: Name of the module to debloat
+    :param marked_attributes: Attributes that must be kept
     """
 
     def __init__(self, target, module_name, marked_attributes):
@@ -26,19 +31,20 @@ class DeltaDebugger:
             marked_attributes=self.marked_attrs,
         )
 
+        self.runner = PyLambdaRunner(file_path=self.target)
         self.stats = {"iterations": 0, "attrs": (0, 0)}
 
         # Create a logging directory for intermediate results
         mkdirp("log/" + self.module_name + "/iterations")
 
-        process = run_target(self.target)
+        process = self.runner.run()
 
         if process.returncode == 0:
             self.original_output = str(process.stdout, "utf-8")
             # logger.info("Original output: %s", self.original_output)
         else:
             print(f"Error running target program {process.stderr}")
-            # sys.exit(1)
+            sys.exit(1)
 
     def oracle(self, attributes):
         """
@@ -82,7 +88,7 @@ class DeltaDebugger:
 
             return False
 
-        process = run_target(self.target)
+        process = self.runner.run()
 
         if process.returncode == 0:
             # logger.info("Output: %s", str(process.stdout, "utf-8"))
@@ -124,12 +130,12 @@ class DeltaDebugger:
         while n <= len(remaining_attrs):
 
             us = list(chunks(remaining_attrs, n))
-
             flag = False
 
             for i in range(n):
 
                 attributes = us[i]
+                # print(f"Trying partition {attributes}")
                 # logger.info("Trying partition %s", attributes)
 
                 if self.oracle(attributes):
@@ -150,11 +156,10 @@ class DeltaDebugger:
 
                 for i in range(n):
 
-                    _coattributes = us.copy()
-                    _coattributes.pop(i)
-                    coattributes = flatten(_coattributes)
+                    coattributes = us.copy()
+                    coattributes.pop(i)
+                    coattributes = flatten(coattributes)
                     # logger.info("Trying complements %s", coattributes)
-
                     if self.oracle(coattributes):
 
                         remaining_attrs, n = coattributes, n - 1
