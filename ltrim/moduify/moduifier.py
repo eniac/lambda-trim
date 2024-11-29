@@ -79,7 +79,7 @@ class Moduify:
         self.basename = os.path.basename(self.module_path)
 
         # Retrieve the AST of the module or None if it isn't a Python file
-        if Path(self.module_path).suffix == ".py":
+        if os.path.splitext(self.module_path)[1] == ".py":
             self.ast = ast.parse(inspect.getsource(module))
         else:
             self.ast = None
@@ -88,25 +88,36 @@ class Moduify:
         self.backup_dir = os.path.abspath("tmp/" + module_name)
         cp(self.module_path, self.backup_dir + "/" + self.basename)
 
+    def is_python_module(self):
+        """
+        Check if the module is a Python file by checking if self.ast is
+        set (not None)
+        """
+
+        return self.ast is not None
+
     def modify(self, attributes: list, remove=False):
         """
         Modify the module by removing the attributes
+
+        :param attributes: List of attributes to modify
+        :param remove: If True, remove the attributes, otherwise keep them
         """
 
-        if remove:
-            members_to_remove = [
-                member
-                for member in self.members.items()
-                if (member[0] in attributes)
-                and (member[0] not in self.needed_attributes)
-            ]
-        else:
-            members_to_remove = [
-                member
-                for member in self.members.items()
-                if (member[0] not in attributes)
-                and (member[0] not in self.needed_attributes)
-            ]
+        # Compute the members that need to be removed
+        members_with_flags = [
+            (
+                member,
+                member in attributes and member not in self.needed_attributes,
+            )
+            for member in self.members.keys()
+        ]
+
+        members_to_remove = [
+            (member, value)
+            for member, value in members_with_flags
+            if value == remove
+        ]
 
         # logger.info(
         #     "%d attributes to remove: %s",
@@ -115,6 +126,7 @@ class Moduify:
         # )
 
         try:
+            # Copy the module from the backup directory
             cp(self.backup_dir + "/" + self.basename, self.module_path)
         except Exception as e:
             # logger.error("Error copying module source")
@@ -135,6 +147,7 @@ class Moduify:
         if DEBUG:
             print(ast.dump(module_ast, annotate_fields=True, indent=1))
 
+        # Write back the modified module
         with open(self.module_path, "w", encoding="utf-8") as out:
             new_source = ast.unparse(module_ast)
             out.write(new_source)

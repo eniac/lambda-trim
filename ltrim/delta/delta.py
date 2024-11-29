@@ -16,10 +16,9 @@ class DeltaDebugger:
     :param marked_attributes: Attributes that must be kept
     """
 
-    def __init__(self, target, module_name, marked_attributes):
-
-        # Target program to run
-        self.target = target
+    def __init__(
+        self, target, module_name, marked_attributes, test_cases="data.json"
+    ):
 
         # Attributes that must be kept
         self.marked_attrs = marked_attributes
@@ -31,7 +30,8 @@ class DeltaDebugger:
             marked_attributes=self.marked_attrs,
         )
 
-        self.runner = PyLambdaRunner(file_path=self.target)
+        self.runner = PyLambdaRunner(file_path=target, test_cases=test_cases)
+
         self.stats = {"iterations": 0, "attrs": (0, 0)}
 
         # Create a logging directory for intermediate results

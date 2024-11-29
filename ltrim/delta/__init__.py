@@ -1,11 +1,9 @@
 import argparse
-from ltrim.delta.delta import DeltaDebugger
-from ltrim.delta.utils import run_target
 
-__all__ = [
-    "DeltaDebugger",
-    "run_target",
-]
+from ltrim.delta.delta import DeltaDebugger
+from ltrim.delta.utils import PyLambdaRunner
+
+__all__ = ["DeltaDebugger", "PyLambdaRunner"]
 
 
 def main():
@@ -16,6 +14,12 @@ def main():
     parser.add_argument("target", help="The target program")
     parser.add_argument("module", help="The module to modify")
     parser.add_argument(
+        "--test-cases",
+        type=str,
+        default="data.json",
+        help="JSON file containing test cases.",
+    )
+    parser.add_argument(
         "attributes", type=str, nargs="*", help="Attributes to keep."
     )
 
@@ -25,6 +29,7 @@ def main():
         target=args.target,
         module_name=args.module,
         marked_attributes=args.attributes,
+        test_cases=args.test_cases,
     )
 
     remaining_attributes = debugger.delta_debug()
