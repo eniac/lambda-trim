@@ -33,7 +33,7 @@ class PyLambdaRunner:
 
             return process
         except subprocess.CalledProcessError as e:
-            print(e)
+            # print(e)
             return e
 
 
@@ -70,7 +70,9 @@ def chunks(xs, n):
     """
     k, m = divmod(len(xs), n)
     return (
-        xs[i * k + min(i, m) : (i + 1) * k + min(i + 1, m)] for i in range(n)
+        # fmt: off
+        xs[i * k + min(i, m): (i + 1) * k + min(i + 1, m)] for i in range(n)
+        # fmt: on
     )
 
 

@@ -1,10 +1,10 @@
 import ast
-import sys
 import importlib
+import sys
 
+from ltrim.delta.utils import PyLambdaRunner, chunks, flatten
 from ltrim.moduify import Moduify
-from ltrim.utils import mkdirp, MAGIC_ATTRIBUTES
-from ltrim.delta.utils import chunks, flatten, PyLambdaRunner
+from ltrim.utils import MAGIC_ATTRIBUTES, mkdirp
 
 
 class DeltaDebugger:
@@ -114,7 +114,7 @@ class DeltaDebugger:
 
         print("Running Delta Debugging for module " + self.module_name)
 
-        # logger.info("Running Delta Debugging for module %s", self.module_name)
+        # logger.info("Running DeltaDebugging for module %s", self.module_name)
         # logger.info("Necessary attributes: %s", self.marked_attrs)
 
         module = importlib.import_module(self.module_name)
@@ -124,7 +124,7 @@ class DeltaDebugger:
 
         remaining_attrs, n = members, 2
 
-        size_module = len(dir(module))
+        smodule = len(dir(module))
         attrs_before = len(remaining_attrs)
 
         while n <= len(remaining_attrs):
@@ -177,9 +177,9 @@ class DeltaDebugger:
         attrs_after = len(remaining_attrs)
         removed = attrs_before - attrs_after
         print(
-            f"Removed {removed} attributes {(removed / size_module * 100):.2f}%."
+            f"Removed {removed} attributes {(removed / smodule * 100):.2f}%."
         )
-        self.stats["attrs"] = (size_module, removed)
+        self.stats["attrs"] = (smodule, removed)
         return list(self.marked_attrs) + remaining_attrs
 
     def get_attr_stats(self):
@@ -194,7 +194,7 @@ class DeltaDebugger:
         left after delta debugging
 
         :param attributes: The attributes to remove
-        :param local: If working on a local environment, restore the original directory
+        :param local: In local environment, restore the original directory
         """
 
         m_path = self.moduifier.module_path

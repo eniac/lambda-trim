@@ -2,17 +2,15 @@
 Modify modules by removing attributes
 """
 
-import os
 import ast
-import sys
 import copy
-import inspect
 import importlib
-
-from pathlib import Path
+import inspect
+import os
+import sys
 
 from ltrim.transformers import RemoveAttribute, SetFix
-from ltrim.utils import cp, MAGIC_ATTRIBUTES
+from ltrim.utils import MAGIC_ATTRIBUTES, cp
 
 DEBUG = False
 
@@ -105,19 +103,24 @@ class Moduify:
         """
 
         # Compute the members that need to be removed
-        members_with_flags = [
-            (
-                member,
-                member in attributes and member not in self.needed_attributes,
-            )
-            for member in self.members.keys()
+        filtered_members = [
+            (member, value)
+            for member, value in self.members.items()
+            if member not in self.needed_attributes
         ]
 
-        members_to_remove = [
-            (member, value)
-            for member, value in members_with_flags
-            if value == remove
-        ]
+        if remove:
+            members_to_remove = [
+                (member, value)
+                for member, value in filtered_members
+                if member in attributes
+            ]
+        else:
+            members_to_remove = [
+                (member, value)
+                for member, value in filtered_members
+                if member not in attributes
+            ]
 
         # logger.info(
         #     "%d attributes to remove: %s",
@@ -139,7 +142,7 @@ class Moduify:
         remove_transformer = RemoveAttribute(tag_members(members_to_remove))
         module_ast = remove_transformer.visit(module_ast)
 
-        # TODO: Find a way to detect modules that require the SetFix transformer
+        # TODO: Just for numpy for now
         if self.module_name == "numpy":
             numpyfix = SetFix(members_to_remove)
             module_ast = numpyfix.visit(module_ast)

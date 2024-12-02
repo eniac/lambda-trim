@@ -1,6 +1,6 @@
-import json
 import argparse
 import importlib.util
+import json
 
 if __name__ == "__main__":
 

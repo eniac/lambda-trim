@@ -1,5 +1,5 @@
-from .constants import MB, MS, MAGIC_ATTRIBUTES
 from ._io import cp, mkdirp
+from .constants import MAGIC_ATTRIBUTES, MB, MS
 
 __all__ = [
     # Constants

@@ -1,12 +1,13 @@
 import os
 import sys
 import time
-import psutil
-from importlib.machinery import PathFinder
-from importlib.abc import Loader
 from contextlib import contextmanager
-from types import ModuleType, MethodType
+from importlib.abc import Loader
+from importlib.machinery import PathFinder
+from types import MethodType, ModuleType
 from typing import Sequence
+
+import psutil
 
 from ltrim.utils.constants import MB, MS
 
@@ -96,7 +97,9 @@ def attach():
 
 
 def detach():
-    sys.meta_path = [i for i in sys.meta_path if not isinstance(i, ProfilerMetaFinder)]
+    sys.meta_path = [
+        i for i in sys.meta_path if not isinstance(i, ProfilerMetaFinder)
+    ]
 
 
 def get_profiler_report():

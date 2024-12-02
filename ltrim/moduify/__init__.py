@@ -1,4 +1,5 @@
 import argparse
+
 from ltrim.moduify.moduifier import Moduify
 
 __all__ = ["Moduify"]
@@ -15,7 +16,8 @@ def main():
         "-r",
         "--remove",
         action="store_true",
-        help="Remove or keep attributes. If set, attributes are removed. Otherwise, they are kept.",
+        help="""Remove or keep attributes. If set, attributes
+        are removed. Otherwise, they are kept.""",
     )
     parser.add_argument(
         "-a",

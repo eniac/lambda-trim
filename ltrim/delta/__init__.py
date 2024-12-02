@@ -9,7 +9,10 @@ __all__ = ["DeltaDebugger", "PyLambdaRunner"]
 def main():
 
     parser = argparse.ArgumentParser(
-        description="Run Delta Debugging on a module with a target program and a set of attributes to keep."
+        description="""
+        Run Delta Debugging on a module with a target program and a
+        set of attributes to keep.
+        """
     )
     parser.add_argument("target", help="The target program")
     parser.add_argument("module", help="The module to modify")
@@ -34,3 +37,4 @@ def main():
 
     remaining_attributes = debugger.delta_debug()
     print(f"Remaining attributes: {remaining_attributes}")
+    debugger.finalize_module(remaining_attributes)

@@ -1,9 +1,9 @@
 """track all imported modules for a Python file"""
 
 import sys
-from importlib.machinery import PathFinder
 from importlib.abc import Loader
-from types import ModuleType, MethodType
+from importlib.machinery import PathFinder
+from types import MethodType, ModuleType
 from typing import Sequence
 
 
