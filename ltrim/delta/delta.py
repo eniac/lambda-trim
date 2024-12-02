@@ -16,9 +16,7 @@ class DeltaDebugger:
     :param marked_attributes: Attributes that must be kept
     """
 
-    def __init__(
-        self, target, module_name, marked_attributes, test_cases="data.json"
-    ):
+    def __init__(self, target, module_name, marked_attributes, test_cases="data.json"):
 
         # Attributes that must be kept
         self.marked_attrs = marked_attributes
@@ -68,15 +66,11 @@ class DeltaDebugger:
             )
             mkdirp(iteration_dir)
 
-            with open(
-                iteration_dir + "/__init__.py", "w", encoding="utf-8"
-            ) as file:
+            with open(iteration_dir + "/__init__.py", "w", encoding="utf-8") as file:
                 new_source = ast.unparse(modified_ast)
                 file.write(new_source)
 
-            with open(
-                iteration_dir + "/attr.txt", "w", encoding="utf-8"
-            ) as file:
+            with open(iteration_dir + "/attr.txt", "w", encoding="utf-8") as file:
                 file.write("Keeping the following attributes:\n")
                 for item in attributes:
                     file.write(f"{item}\n")
@@ -176,9 +170,7 @@ class DeltaDebugger:
 
         attrs_after = len(remaining_attrs)
         removed = attrs_before - attrs_after
-        print(
-            f"Removed {removed} attributes {(removed / smodule * 100):.2f}%."
-        )
+        print(f"Removed {removed} attributes {(removed / smodule * 100):.2f}%.")
         self.stats["attrs"] = (smodule, removed)
         return list(self.marked_attrs) + remaining_attrs
 
@@ -221,9 +213,7 @@ class DeltaDebugger:
             file.write(new_source)
             file.flush()
 
-        with open(
-            log_mod_dir + "/original_" + basename, "w", encoding="utf-8"
-        ) as file:
+        with open(log_mod_dir + "/original_" + basename, "w", encoding="utf-8") as file:
             with open(
                 self.moduifier.backup_dir + "/" + basename,
                 "r",

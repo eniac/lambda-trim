@@ -22,9 +22,7 @@ def main():
         default="data.json",
         help="JSON file containing test cases.",
     )
-    parser.add_argument(
-        "attributes", type=str, nargs="*", help="Attributes to keep."
-    )
+    parser.add_argument("attributes", type=str, nargs="*", help="Attributes to keep.")
 
     args = parser.parse_args()
 

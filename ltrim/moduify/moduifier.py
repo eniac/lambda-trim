@@ -68,9 +68,7 @@ class Moduify:
 
         # Get the complete set of attributes
         self.members = {
-            key: value
-            for key, value in self.members.items()
-            if key in dir(module)
+            key: value for key, value in self.members.items() if key in dir(module)
         }
 
         # Get the basename of the module

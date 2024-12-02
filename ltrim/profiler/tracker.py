@@ -61,9 +61,7 @@ def attach():
 
 
 def detach():
-    sys.meta_path = [
-        i for i in sys.meta_path if not isinstance(i, TrackerMetaFinder)
-    ]
+    sys.meta_path = [i for i in sys.meta_path if not isinstance(i, TrackerMetaFinder)]
 
 
 def get_tracker_report():

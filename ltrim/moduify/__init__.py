@@ -9,9 +9,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="Modify modules by removing attributes."
     )
-    parser.add_argument(
-        "module_name", type=str, help="Name of the module to modify."
-    )
+    parser.add_argument("module_name", type=str, help="Name of the module to modify.")
     parser.add_argument(
         "-r",
         "--remove",

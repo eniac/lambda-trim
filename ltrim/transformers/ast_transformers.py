@@ -58,9 +58,7 @@ class RemoveAttribute(ast.NodeTransformer):
                 return ast.Pass()
 
         first_target = node.targets[0]
-        if isinstance(first_target, ast.Name) and (
-            first_target.id == "__all__"
-        ):
+        if isinstance(first_target, ast.Name) and (first_target.id == "__all__"):
             new_elements = []
             if not hasattr(node.value, "elts"):
                 return node
