@@ -1,5 +1,4 @@
 import ast
-import sys
 
 from ltrim.transformers.utils import retrieve_name
 
@@ -17,22 +16,14 @@ class ImportsFinder(ast.NodeVisitor):
         """
         Custom visit_Import
         """
-        self.imports.extend(
-            ("Import", (n.name, n.asname))
-            for n in node.names
-            if n.name not in sys.builtin_module_names
-        )
+        self.imports.extend(n.name for n in node.names)
         ast.NodeVisitor.generic_visit(self, node)
 
     def visit_ImportFrom(self, node):
         """
         Custom visit_ImportFrom
         """
-        self.imports.extend(
-            ("ImportFrom", (node.module, n.name, n.asname, node.level))
-            for n in node.names
-            if n.name not in sys.builtin_module_names
-        )
+        self.imports.extend(node.module for n in node.names)
         ast.NodeVisitor.generic_visit(self, node)
 
 
