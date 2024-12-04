@@ -1,39 +1,11 @@
-from functools import wraps
-from multiprocessing import Pipe, Process
+import importlib
 
 from pycg import formats
 from pycg.pycg import CallGraphGenerator
 from pycg.utils.constants import CALL_GRAPH_OP
 
-from ltrim.profiler import profiler
-
-
-def isolate(func):
-    """
-    A decorator to run a function in a separate process and send its return value
-    through a pipe.
-    """
-
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        # Create a pipe for communication
-        parent_conn, child_conn = Pipe()
-
-        def target(pipe_conn, *args, **kwargs):
-            # Call the wrapped function and send the result through the pipe
-            result = func(*args, **kwargs)
-            pipe_conn.send(result)
-            pipe_conn.close()  # Close the pipe connection after sending the result
-
-        # Run the function in a separate process, passing the child pipe connection
-        process = Process(target=target, args=(child_conn, *args), kwargs=kwargs)
-        process.start()
-        process.join()  # Wait for the process to complete
-
-        # Return the parent pipe connection for the caller to retrieve the result
-        return parent_conn.recv()
-
-    return wrapper
+from ltrim.debloat.utils import isolate
+from ltrim.profiler import get_memory_usage, profiler
 
 
 @isolate
@@ -52,7 +24,7 @@ def run_pycg(target):
 
 
 @isolate
-def profile(modules):
+def run_profiler(modules):
     """
     Profile the import process of a list of modules.
 
@@ -61,4 +33,17 @@ def profile(modules):
 
     profiler.attach()
 
+    starting_memory = get_memory_usage()
+
+    for module in modules:
+
+        importlib.import_module(module)
+
+    ending_memory = get_memory_usage()
+
+    profiler_report = profiler.get_report()
+    profiler_report["total_memory"] = ending_memory - starting_memory
+
     profiler.detach()
+
+    return profiler_report

@@ -1,7 +1,7 @@
 import argparse
 import ast
 
-from ltrim.debloat.process import run_pycg
+from ltrim.debloat.process import run_profiler, run_pycg
 from ltrim.debloat.utils import blacklist
 from ltrim.transformers import ImportsFinder
 
@@ -64,8 +64,15 @@ def main():
         imported_modules.append(module_name)
 
     print(imported_modules)
+
     # TODO: Check if there are duplicates in the imported modules
 
     # --------------------------------------------------------------------- #
     # ------------------------- Profiling Phase --------------------------- #
     # --------------------------------------------------------------------- #
+
+    # Step 3: Profile the import process of the application
+
+    report = run_profiler(imported_modules)
+
+    print(report)

@@ -100,7 +100,7 @@ def detach():
     sys.meta_path = [i for i in sys.meta_path if not isinstance(i, ProfilerMetaFinder)]
 
 
-def get_profiler_report():
+def get_report():
     """
     Return the profiler report
     """
