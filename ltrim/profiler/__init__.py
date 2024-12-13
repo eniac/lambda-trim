@@ -3,7 +3,6 @@ import os
 import psutil
 
 import ltrim.profiler.profiler as profiler
-import ltrim.profiler.tracker as tracker
 from ltrim.utils import MB
 
 
@@ -15,4 +14,4 @@ def get_memory_usage():
     return process.memory_info().rss / MB
 
 
-__all__ = ["profiler", "tracker"]
+__all__ = ["profiler", "get_memory_usage"]

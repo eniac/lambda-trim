@@ -1,10 +1,12 @@
 import importlib
+import time
 
 from pycg import formats
 from pycg.pycg import CallGraphGenerator
 from pycg.utils.constants import CALL_GRAPH_OP
 
 from ltrim.debloat.utils import isolate
+from ltrim.delta import DeltaDebugger
 from ltrim.profiler import get_memory_usage, profiler
 
 
@@ -47,3 +49,24 @@ def run_profiler(modules):
     profiler.detach()
 
     return profiler_report
+
+
+@isolate
+def debloat(target, module, marked_attributes):
+    """ "
+    Run the DeltaDebugger to debloat a module imported from the target program.
+
+    :param target: The target program to run
+    :param module: The module to debloat
+    :param marked_attributes: The marked attributes to keep
+    """
+
+    delta_debugger = DeltaDebugger(target, module, marked_attributes)
+
+    start = time.time()
+    debloated_attributes = delta_debugger.delta_debug()
+    end = time.time()
+    total_time = end - start
+
+    print(f"Total time taken: {total_time}")
+    print(debloated_attributes)
