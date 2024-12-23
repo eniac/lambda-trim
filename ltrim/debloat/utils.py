@@ -109,7 +109,5 @@ def filter_pycg(module, pycg_attributes):
     """
 
     # using regex to match the module name, i.e. "module.*"
-    print(module)
     pattern = re.compile(r"{}.*".format(module))
-    print(pattern)
     return [attr for attr in pycg_attributes if pattern.match(attr)]

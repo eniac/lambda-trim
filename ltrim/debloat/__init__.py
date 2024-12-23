@@ -118,17 +118,32 @@ def main():
 
         # Step 6.1 - Filter the PyCG attributes
         filtered_attributes = filter_pycg(module, call_graph)
+        print(filtered_attributes)
 
         # Step 6.2 - Debloat the module
         debloat(appname, module, filtered_attributes)
 
         # TODO: Add stats collection
-        # TODO: Re-import to update alive_modules
+        # Re-import to update alive_modules
+        new_report = run_profiler(modules_to_debloat)
+
+        for _module in alive_modules:
+            if _module not in new_report:
+                alive_modules.remove(_module)
 
     # --------------------------------------------------------------------- #
     # ---------------------- Stats-collecting Phase ----------------------- #
     # --------------------------------------------------------------------- #
 
+    # Step 7 - Collect statistics
+
+    # Run profiler again to collect statistics
+    final_report = run_profiler(imported_modules)
+    print(final_report)
+
     # --------------------------------------------------------------------- #
     # ------------------------------- Done -------------------------------- #
     # --------------------------------------------------------------------- #
+
+    print("Debloating process completed successfully!")
+    print("For detailed statistics, check the logs.")
