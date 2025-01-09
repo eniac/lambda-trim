@@ -33,7 +33,6 @@ class PyLambdaRunner:
 
             return process
         except subprocess.CalledProcessError as e:
-            # print(e)
             return e
 
 

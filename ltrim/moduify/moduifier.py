@@ -101,6 +101,9 @@ class Moduify:
         """
 
         # Compute the members that need to be removed
+
+        # Filter out the attributes that are needed
+        # (magic attributes + marked attributes)
         filtered_members = [
             (member, value)
             for member, value in self.members.items()
@@ -120,18 +123,10 @@ class Moduify:
                 if member not in attributes
             ]
 
-        # logger.info(
-        #     "%d attributes to remove: %s",
-        #     len(members_to_remove),
-        #     [attr[0] for attr in members_to_remove],
-        # )
-
         try:
             # Copy the module from the backup directory
             cp(self.backup_dir + "/" + self.basename, self.module_path)
         except Exception as e:
-            # logger.error("Error copying module source")
-            # logger.error(e)
             print(f"Error copying module source: {e}")
             sys.exit(1)
 

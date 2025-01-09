@@ -1,5 +1,6 @@
 import ast
 import importlib
+import logging
 import sys
 
 from ltrim.delta.utils import PyLambdaRunner, chunks, flatten
@@ -28,20 +29,33 @@ class DeltaDebugger:
             marked_attributes=self.marked_attrs,
         )
 
-        self.runner = PyLambdaRunner(file_path=target, test_cases=test_cases)
+        # Initialize the logger for the module under DD
+        self.logger = logging.getLogger(module_name + "_delta")
+        self.logger.setLevel(logging.INFO)
+        handler = logging.FileHandler(f"log/{module_name}_delta.log")
+        handler.setLevel(logging.INFO)
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
+        handler.setFormatter(formatter)
+        self.logger.addHandler(handler)
+        self.logger.propagate = False
 
         self.stats = {"iterations": 0, "attrs": (0, 0)}
 
         # Create a logging directory for intermediate results
         mkdirp("log/" + self.module_name + "/iterations")
 
+        # Instace of driver for running the target program
+        self.runner = PyLambdaRunner(file_path=target, test_cases=test_cases)
+
         process = self.runner.run()
 
         if process.returncode == 0:
             self.original_output = str(process.stdout, "utf-8")
-            # logger.info("Original output: %s", self.original_output)
+            self.logger.info("Original output: %s", self.original_output)
         else:
-            print(f"Error running target program {process.stderr}")
+            self.logger.error(f"Error running target program: {process.stderr}")
             sys.exit(1)
 
     def oracle(self, attributes):
@@ -77,7 +91,7 @@ class DeltaDebugger:
 
         except Exception as e:
 
-            # logger.error("Error modifying module: %s", e)
+            self.logger.error("Error modifying module: %s", e)
             print(f"Error modifying module: {e}")
 
             return False
@@ -85,19 +99,21 @@ class DeltaDebugger:
         process = self.runner.run()
 
         if process.returncode == 0:
-            # logger.info("Output: %s", str(process.stdout, "utf-8"))
+            self.logger.info("Output: %s", str(process.stdout, "utf-8"))
             output = str(process.stdout, "utf-8")
 
             if output != self.original_output:
-                pass
-                # logger.info("Output changed: %s", output)
-                # logger.info("Original output: %s", self.original_output)
+                self.logger.info("Output changed: %s", output)
+                self.logger.info("Original output: %s", self.original_output)
+                return False
 
             return output == self.original_output
 
-        return False
+        else:
+            self.logger.error("Error running target program: %s", process.stderr)
+            return False
 
-    def delta_debug(self):
+    def delta_debug(self, log=False):
         """
         Delta-Debugging algorithm
         """
@@ -108,13 +124,13 @@ class DeltaDebugger:
 
         print("Running Delta Debugging for module " + self.module_name)
 
-        # logger.info("Running DeltaDebugging for module %s", self.module_name)
-        # logger.info("Necessary attributes: %s", self.marked_attrs)
+        self.logger.info("Running DeltaDebugging for module %s", self.module_name)
+        self.logger.info("Necessary attributes: %s", self.marked_attrs)
 
         module = importlib.import_module(self.module_name)
 
         members = [x for x in dir(module) if x not in MAGIC_ATTRIBUTES]
-        # logger.info("Module attributes: %s", members)
+        self.logger.info("Module attributes: %s", members)
 
         remaining_attrs, n = members, 2
 
@@ -129,19 +145,15 @@ class DeltaDebugger:
             for i in range(n):
 
                 attributes = us[i]
-                # print(f"Trying partition {attributes}")
-                # logger.info("Trying partition %s", attributes)
+                self.logger.info("Trying partition %s", attributes)
 
-                if self.oracle(attributes):
-
+                if self.oracle(attributes, log):
                     remaining_attrs, n = attributes, 2
-                    # logger.info("REDUCED to %s", l)
+                    self.logger.info("REDUCED to %s", remaining_attrs)
                     flag = True
-
                     break
 
             if flag:
-
                 continue
 
             if n > 2:
@@ -153,17 +165,15 @@ class DeltaDebugger:
                     coattributes = us.copy()
                     coattributes.pop(i)
                     coattributes = flatten(coattributes)
-                    # logger.info("Trying complements %s", coattributes)
-                    if self.oracle(coattributes):
+                    self.logger.info("Trying c-partition %s", coattributes)
 
+                    if self.oracle(coattributes, log):
                         remaining_attrs, n = coattributes, n - 1
-                        # logger.info("REDUCED to %s", l)
+                        self.logger.info("REDUCED to %s", remaining_attrs)
                         flag = True
-
                         break
 
             if flag:
-
                 continue
 
             n *= 2
@@ -182,8 +192,7 @@ class DeltaDebugger:
 
     def finalize_module(self, attributes, local=False):
         """
-        Finalize the module by removing the attributes
-        left after delta debugging
+        Finalize the module by removing a set of attributes
 
         :param attributes: The attributes to remove
         :param local: In local environment, restore the original directory

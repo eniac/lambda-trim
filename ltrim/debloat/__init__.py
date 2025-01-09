@@ -1,9 +1,25 @@
 import argparse
 import ast
+import logging
+from pprint import pformat as pp
 
 from ltrim.debloat.process import debloat, run_profiler, run_pycg
-from ltrim.debloat.utils import blacklist, filter_pycg, sort_report
+
+# TODO: from ltrim.debloat.stats import ModuleRecord
+from ltrim.debloat.utils import (
+    blacklist,
+    filter_pycg,
+    sort_report,
+    update_alive_modules,
+)
 from ltrim.transformers import ImportsFinder
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    filename="log/debloat.log",
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO,
+)
 
 
 def main():
@@ -44,12 +60,17 @@ def main():
     # --------------------------------------------------------------------- #
 
     # Step 1: Find imported modules
+    print("Finding imports...")
     imports_finder = ImportsFinder()
     imports_finder.visit(ast_source)
+    print("Imports found!")
+    logger.info(f"Imports found: {imports_finder.imports}")
 
     # Step 2: Use PyCG to extract the call graph of the application
+    print("Extracting call graph...")
     call_graph = run_pycg(appname)
-    print(call_graph)
+    print("Call graph extracted!")
+    logger.info(f"Call graph extracted: {call_graph}")
 
     # --------------------------------------------------------------------- #
     # ------------------------ Constructing Phase ------------------------- #
@@ -65,7 +86,7 @@ def main():
 
         imported_modules.append(module_name)
 
-    print(imported_modules)
+    logger.info(f"Filtered imports: {imported_modules}")
 
     # TODO: Check if there are duplicates in the imported modules
 
@@ -73,10 +94,9 @@ def main():
     # ------------------------- Profiling Phase --------------------------- #
     # --------------------------------------------------------------------- #
 
-    # Step 3: Profile the import process of the application
+    # Step 4: Profile the import process of the application
+    print("Profiling the import process...")
     report = run_profiler(imported_modules)
-
-    import pprint as pp
 
     # Extract the total memory used by the imported modules
     total_memory = report["total_memory"]
@@ -87,17 +107,16 @@ def main():
         [report[module]["time"] for module in imported_modules if module in report]
     )
 
-    print(f"Total memory used: {total_memory}")
-    print(f"Total time taken: {total_time}")
+    print(f"Total memory used in the import process: {total_memory:.2f}MB")
+    print(f"Total time taken for the import process: {total_time:.2f}ms")
 
-    # Step 5 - Sort the profiler report by the scoring method
+    # Step 5 - Sort the profiler report using the scoring method
     sorted_report = sort_report(report, args.scoring, total_time, total_memory)
 
     # Filter modules in the blacklist
     sorted_report = [module for module in sorted_report if module[0] not in blacklist]
-    pp.pprint(sorted_report[: args.top_K])
-
-    # TODO: Log statistics from the report
+    logger.info(pp(sorted_report[: args.top_K]))
+    print("Profiling completed!")
 
     # --------------------------------------------------------------------- #
     # ------------------------- Debloating Phase -------------------------- #
@@ -118,7 +137,7 @@ def main():
 
         # Step 6.1 - Filter the PyCG attributes
         filtered_attributes = filter_pycg(module, call_graph)
-        print(filtered_attributes)
+        logger.info(f"Attributes to keep based on PyCG: {filtered_attributes}")
 
         # Step 6.2 - Debloat the module
         debloat(appname, module, filtered_attributes)
@@ -126,10 +145,7 @@ def main():
         # TODO: Add stats collection
         # Re-import to update alive_modules
         new_report = run_profiler(modules_to_debloat)
-
-        for _module in alive_modules:
-            if _module not in new_report:
-                alive_modules.remove(_module)
+        update_alive_modules(alive_modules, new_report)
 
     # --------------------------------------------------------------------- #
     # ---------------------- Stats-collecting Phase ----------------------- #
@@ -139,7 +155,8 @@ def main():
 
     # Run profiler again to collect statistics
     final_report = run_profiler(imported_modules)
-    print(final_report)
+    logger.info("Final report after debloating:")
+    logger.info(pp(final_report))
 
     # --------------------------------------------------------------------- #
     # ------------------------------- Done -------------------------------- #

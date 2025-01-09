@@ -86,7 +86,6 @@ def sort_report(report, method, T, M):
 
     # Add scoring to the report
     for entry in report:
-        print(entry)
         report[entry]["score"] = scoring(
             method,
             report[entry]["time"],
@@ -111,3 +110,15 @@ def filter_pycg(module, pycg_attributes):
     # using regex to match the module name, i.e. "module.*"
     pattern = re.compile(r"{}.*".format(module))
     return [attr for attr in pycg_attributes if pattern.match(attr)]
+
+
+def update_alive_modules(alive_modules, report):
+    """
+    Update the alive modules based on the report.
+
+    :param alive_modules: The set of alive modules
+    :param report: The profiling report
+    """
+    for module in alive_modules:
+        if module not in report:
+            alive_modules.discard(module)
