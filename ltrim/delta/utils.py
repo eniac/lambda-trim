@@ -4,6 +4,10 @@ import subprocess
 driver_path = os.path.abspath(__file__).replace("utils.py", "driver.py")
 
 
+class Found(Exception):
+    pass
+
+
 class PyLambdaRunner:
     def __init__(self, file_path, handler="handler", test_cases="data.json"):
         self.file_path = file_path

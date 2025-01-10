@@ -109,12 +109,17 @@ def filter_pycg(module, pycg_attributes):
 
     # using regex to match the module name, i.e. "module.*"
     pattern = re.compile(r"{}.*".format(module))
-    return [attr for attr in pycg_attributes if pattern.match(attr)]
+    return [
+        attr.removeprefix(module + ".")
+        for attr in pycg_attributes
+        if pattern.match(attr)
+    ]
 
 
 def update_alive_modules(alive_modules, report):
     """
-    Update the alive modules based on the report.
+    Update the alive modules based on the report. Dictionaries are mutable objects,
+    so the alive_modules set will be updated in place.
 
     :param alive_modules: The set of alive modules
     :param report: The profiling report

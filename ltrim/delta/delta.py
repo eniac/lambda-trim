@@ -3,7 +3,7 @@ import importlib
 import logging
 import sys
 
-from ltrim.delta.utils import PyLambdaRunner, chunks, flatten
+from ltrim.delta.utils import Found, PyLambdaRunner, chunks, flatten
 from ltrim.moduify import Moduify
 from ltrim.utils import MAGIC_ATTRIBUTES, mkdirp
 
@@ -58,7 +58,7 @@ class DeltaDebugger:
             self.logger.error(f"Error running target program: {process.stderr}")
             sys.exit(1)
 
-    def oracle(self, attributes):
+    def oracle(self, attributes, log=True):
         """
         Run the target program with the modified module and attributes.
         If the program fails to run, the oracle returns False.
@@ -71,30 +71,34 @@ class DeltaDebugger:
         self.stats["iterations"] += 1
         iterations = self.stats["iterations"]
 
-        try:
+        if log:
 
-            modified_ast = self.moduifier.modify(attributes, remove=False)
+            try:
 
-            iteration_dir = (
-                "log/" + self.module_name + "/iterations/i" + str(iterations)
-            )
-            mkdirp(iteration_dir)
+                modified_ast = self.moduifier.modify(attributes, remove=False)
 
-            with open(iteration_dir + "/__init__.py", "w", encoding="utf-8") as file:
-                new_source = ast.unparse(modified_ast)
-                file.write(new_source)
+                iteration_dir = (
+                    "log/" + self.module_name + "/iterations/i" + str(iterations)
+                )
+                mkdirp(iteration_dir)
 
-            with open(iteration_dir + "/attr.txt", "w", encoding="utf-8") as file:
-                file.write("Keeping the following attributes:\n")
-                for item in attributes:
-                    file.write(f"{item}\n")
+                with open(
+                    iteration_dir + "/__init__.py", "w", encoding="utf-8"
+                ) as file:
+                    new_source = ast.unparse(modified_ast)
+                    file.write(new_source)
 
-        except Exception as e:
+                with open(iteration_dir + "/attr.txt", "w", encoding="utf-8") as file:
+                    file.write("Keeping the following attributes:\n")
+                    for item in attributes:
+                        file.write(f"{item}\n")
 
-            self.logger.error("Error modifying module: %s", e)
-            print(f"Error modifying module: {e}")
+            except Exception as e:
 
-            return False
+                self.logger.error("Error modifying module: %s", e)
+                print(f"Error modifying module: {e}")
+
+                return False
 
         process = self.runner.run()
 
@@ -140,48 +144,44 @@ class DeltaDebugger:
         while n <= len(remaining_attrs):
 
             us = list(chunks(remaining_attrs, n))
-            flag = False
 
-            for i in range(n):
-
-                attributes = us[i]
-                self.logger.info("Trying partition %s", attributes)
-
-                if self.oracle(attributes, log):
-                    remaining_attrs, n = attributes, 2
-                    self.logger.info("REDUCED to %s", remaining_attrs)
-                    flag = True
-                    break
-
-            if flag:
-                continue
-
-            if n > 2:
-
-                flag = False
+            try:
 
                 for i in range(n):
 
-                    coattributes = us.copy()
-                    coattributes.pop(i)
-                    coattributes = flatten(coattributes)
-                    self.logger.info("Trying c-partition %s", coattributes)
+                    attributes = us[i]
 
-                    if self.oracle(coattributes, log):
-                        remaining_attrs, n = coattributes, n - 1
-                        self.logger.info("REDUCED to %s", remaining_attrs)
-                        flag = True
-                        break
+                    self.logger.info("Trying partition %s", attributes)
 
-            if flag:
+                    if self.oracle(attributes, log):
+                        remaining_attrs, n = attributes, 2
+                        raise Found
+
+                if n > 2:
+
+                    for i in range(n):
+
+                        coattributes = us.copy()
+                        coattributes.pop(i)
+                        coattributes = flatten(coattributes)
+
+                        self.logger.info("Trying c-partition %s", coattributes)
+
+                        if self.oracle(coattributes, log):
+                            remaining_attrs, n = coattributes, n - 1
+                            raise Found
+
+                n *= 2
+
+            except Found:
+                self.logger.info("REDUCED to %s", remaining_attrs)
                 continue
-
-            n *= 2
 
         attrs_after = len(remaining_attrs)
         removed = attrs_before - attrs_after
         print(f"Removed {removed} attributes {(removed / smodule * 100):.2f}%.")
         self.stats["attrs"] = (smodule, removed)
+
         return list(self.marked_attrs) + remaining_attrs
 
     def get_attr_stats(self):

@@ -32,13 +32,11 @@ def run_profiler(modules):
 
     :param modules: A list of modules to profile
     """
-
     profiler.attach()
 
     starting_memory = get_memory_usage()
 
     for module in modules:
-
         importlib.import_module(module)
 
     ending_memory = get_memory_usage()
@@ -53,7 +51,7 @@ def run_profiler(modules):
 
 @isolate
 def debloat(target, module, marked_attributes):
-    """ "
+    """
     Run the DeltaDebugger to debloat a module imported from the target program.
 
     :param target: The target program to run
@@ -64,11 +62,13 @@ def debloat(target, module, marked_attributes):
     delta_debugger = DeltaDebugger(target, module, marked_attributes)
 
     start = time.time()
-    debloated_attributes = delta_debugger.delta_debug()
+    debloated_attributes = delta_debugger.delta_debug(log=True)
     end = time.time()
     total_time = end - start
 
-    delta_debugger.finalize_module(debloated_attributes)
-
     print(f"Total time taken: {total_time}")
     print(debloated_attributes)
+
+    delta_debugger.finalize_module(debloated_attributes)
+
+    return
