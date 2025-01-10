@@ -14,10 +14,6 @@ class PyLambdaRunner:
         self.handler = handler
         self.test_cases = test_cases
 
-        print(f"Running {self.file_path}")
-        print(f"Handler: {self.handler}")
-        print(f"Test cases: {self.test_cases}")
-
     def run(self):
 
         try:
