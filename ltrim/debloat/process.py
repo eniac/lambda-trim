@@ -1,5 +1,4 @@
 import importlib
-import time
 
 from pycg import formats
 from pycg.pycg import CallGraphGenerator
@@ -61,13 +60,8 @@ def debloat(target, module, marked_attributes):
 
     delta_debugger = DeltaDebugger(target, module, marked_attributes)
 
-    start = time.time()
-    debloated_attributes = delta_debugger.delta_debug(log=True)
-    end = time.time()
-    total_time = end - start
+    debloated_attributes, delta_record = delta_debugger.delta_debug(log=True)
 
-    print(f"Total time taken to debloat {module}: {total_time}ms")
+    module_path = delta_debugger.finalize_module(debloated_attributes)
 
-    delta_debugger.finalize_module(debloated_attributes)
-
-    return
+    return module_path, delta_record

@@ -1,3 +1,8 @@
+from typing import NewType
+
+DeltaRecord = NewType("DeltaRecord", tuple[float, int, int])
+
+
 class ModuleRecord:
     """
     Class to store statistics about the debloating process
@@ -7,10 +12,10 @@ class ModuleRecord:
     :param path: The path to the module file
     """
 
-    def __init__(self, module_name, path):
+    def __init__(self, module_name):
         self.module_name = module_name
         self.stats = {}
-        self.path = path
+        self.path = None
 
     def set_profiling_stats(self, memory, time, before=True):
         """
@@ -24,7 +29,7 @@ class ModuleRecord:
         self.stats["memory_" + order] = memory
         self.stats["time_" + order] = time
 
-    def set_debloating_stats(self, debloat_time, attributes_before, attributes_after):
+    def set_debloating_stats(self, debloat_record: DeltaRecord):
         """
         Set the debloating stats
 
@@ -32,9 +37,19 @@ class ModuleRecord:
         :param attributes_before: Number of module's attributes before debloating
         :param attributes_after: Number of module's attributes after debloating
         """
+        debloat_time, attributes_before, attributes_after = debloat_record
+
         self.stats["debloat_time"] = debloat_time
         self.stats["attributes_before"] = attributes_before
         self.stats["attributes_after"] = attributes_after
+
+    def set_path(self, path):
+        """
+        Set the path to the module file
+
+        :param path: The path to the module file
+        """
+        self.path = path
 
     def convert_to_row(self):
         """

@@ -3,8 +3,6 @@ import logging
 from pprint import pformat as pp
 
 from ltrim.debloat.process import debloat, run_profiler, run_pycg
-
-# TODO: from ltrim.debloat.stats import ModuleRecord
 from ltrim.debloat.utils import (
     blacklist,
     filter_pycg,
@@ -12,6 +10,7 @@ from ltrim.debloat.utils import (
     update_alive_modules,
 )
 from ltrim.transformers import ImportsFinder
+from ltrim.utils.stats import ModuleRecord
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +28,7 @@ class Debloater:
         self.appname = filename
         self.top_K = top_K
         self.scoring = scoring
+        self.stats = {}  # Map from module name to ModuleRecord
 
     def debloat(self):
 
@@ -115,6 +115,8 @@ class Debloater:
 
             print(f"Debloating module {module} ({midx + 1}/{self.top_K})")
 
+            self.stats[module] = ModuleRecord(module)
+
             if module not in alive_modules:
                 print(f"Module {module} is not longer needed!")
                 continue
@@ -124,7 +126,11 @@ class Debloater:
             logger.info(f"Attributes to keep based on PyCG: {filtered_attributes}")
 
             # Step 6.2 - Debloat the module
-            debloat(self.appname, module, filtered_attributes)
+            module_path, delta_record = debloat(
+                self.appname, module, filtered_attributes
+            )
+            self.stats[module].set_path(module_path)
+            self.stats[module].set_debloating_stats(delta_record)
 
             # TODO: Add stats collection
             # Re-import to update alive_modules

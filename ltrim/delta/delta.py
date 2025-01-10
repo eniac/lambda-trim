@@ -2,10 +2,11 @@ import ast
 import importlib
 import logging
 import sys
+import time
 
 from ltrim.delta.utils import Found, PyLambdaRunner, chunks, flatten
 from ltrim.moduify import Moduify
-from ltrim.utils import MAGIC_ATTRIBUTES, mkdirp
+from ltrim.utils import MAGIC_ATTRIBUTES, DeltaRecord, mkdirp
 
 
 class DeltaDebugger:
@@ -41,7 +42,7 @@ class DeltaDebugger:
         self.logger.addHandler(handler)
         self.logger.propagate = False
 
-        self.stats = {"iterations": 0, "attrs": (0, 0)}
+        self.iterations = 0
 
         # Create a logging directory for intermediate results
         mkdirp("log/" + self.module_name + "/iterations")
@@ -68,8 +69,7 @@ class DeltaDebugger:
         :param attributes: The attributes under test
         """
 
-        self.stats["iterations"] += 1
-        iterations = self.stats["iterations"]
+        self.iterations += 1
 
         if log:
 
@@ -78,7 +78,7 @@ class DeltaDebugger:
                 modified_ast = self.moduifier.modify(attributes, remove=False)
 
                 iteration_dir = (
-                    "log/" + self.module_name + "/iterations/i" + str(iterations)
+                    "log/" + self.module_name + "/iterations/i" + str(self.iterations)
                 )
                 mkdirp(iteration_dir)
 
@@ -122,6 +122,8 @@ class DeltaDebugger:
         Delta-Debugging algorithm
         """
 
+        start = time.time()
+
         if self.moduifier.ast is None:
             print("Module is not a Python file")
             return []
@@ -138,7 +140,7 @@ class DeltaDebugger:
 
         remaining_attrs, n = members, 2
 
-        smodule = len(dir(module))
+        all_attributes = len(dir(module))
         attrs_before = len(remaining_attrs)
 
         while n <= len(remaining_attrs):
@@ -177,21 +179,25 @@ class DeltaDebugger:
                 self.logger.info("REDUCED to %s", remaining_attrs)
                 continue
 
+        end = time.time()
+        debloat_time = end - start
+        print(f"Total time taken to debloat {self.module_name}: {debloat_time:.2f}ms")
+
         self.logger.info("Remanining attributes: %s", remaining_attrs)
 
         attrs_after = len(remaining_attrs)
         removed = attrs_before - attrs_after
-        print(f"Removed {removed} attributes {(removed / smodule * 100):.2f}%.")
+        print(f"Removed {removed} attributes {(removed / all_attributes * 100):.2f}%.")
 
-        self.stats["attrs"] = (smodule, removed)
+        delta_record = DeltaRecord((debloat_time, all_attributes, attrs_after))
 
-        return list(self.marked_attrs) + remaining_attrs
+        return list(self.marked_attrs) + remaining_attrs, delta_record
 
     def get_attr_stats(self):
         """
-        Wrapper around stats collection
+        Wrapper around iterations stats
         """
-        return self.stats["attrs"], self.stats["iterations"]
+        return self.iterations
 
     def finalize_module(self, attributes, local=False):
         """
