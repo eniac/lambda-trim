@@ -177,9 +177,12 @@ class DeltaDebugger:
                 self.logger.info("REDUCED to %s", remaining_attrs)
                 continue
 
+        self.logger.info("Remanining attributes: %s", remaining_attrs)
+
         attrs_after = len(remaining_attrs)
         removed = attrs_before - attrs_after
         print(f"Removed {removed} attributes {(removed / smodule * 100):.2f}%.")
+
         self.stats["attrs"] = (smodule, removed)
 
         return list(self.marked_attrs) + remaining_attrs

@@ -66,8 +66,7 @@ def debloat(target, module, marked_attributes):
     end = time.time()
     total_time = end - start
 
-    print(f"Total time taken: {total_time}")
-    print(debloated_attributes)
+    print(f"Total time taken to debloat {module}: {total_time}ms")
 
     delta_debugger.finalize_module(debloated_attributes)
 
