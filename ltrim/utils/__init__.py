@@ -1,6 +1,6 @@
 from ltrim.utils._io import cp, mkdirp
 from ltrim.utils.constants import MAGIC_ATTRIBUTES, MB, MS
-from ltrim.utils.stats import DeltaRecord, ModuleRecord
+from ltrim.utils.stats import DeltaRecord, ModuleRecord, Stats
 
 __all__ = [
     # Constants
@@ -13,4 +13,5 @@ __all__ = [
     # Records types and classes
     "DeltaRecord",
     "ModuleRecord",
+    "Stats",
 ]

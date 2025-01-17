@@ -10,7 +10,7 @@ from ltrim.debloat.utils import (
     update_alive_modules,
 )
 from ltrim.transformers import ImportsFinder
-from ltrim.utils.stats import ModuleRecord
+from ltrim.utils.stats import Stats
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ class Debloater:
         self.appname = filename
         self.top_K = top_K
         self.scoring = scoring
-        self.stats = {}  # Map from module name to ModuleRecord
+        self.stats = Stats(self.appname, self.top_K)
 
     def debloat(self):
 
@@ -107,15 +107,23 @@ class Debloater:
         # --------------------------------------------------------------------- #
 
         # Step 6 - Debloat the top K modules
-        modules_to_debloat = [module[0] for module in sorted_report[: self.top_K]]
+
+        modules_to_debloat = []
+
+        # Initialize a ModuleRecord for stats tracking
+        for module, entry in sorted_report[: self.top_K]:
+            modules_to_debloat.append(module)
+            self.stats.add_module(module)
+            print(entry)
+            self.stats.set_profiling_stats(
+                module=module, memory=entry["memory"], time=entry["time"], before=False
+            )
 
         alive_modules = set(modules_to_debloat)
 
         for midx, module in enumerate(modules_to_debloat):
 
             print(f"Debloating module {module} ({midx + 1}/{self.top_K})")
-
-            self.stats[module] = ModuleRecord(module)
 
             if module not in alive_modules:
                 print(f"Module {module} is not longer needed!")
@@ -129,8 +137,8 @@ class Debloater:
             module_path, delta_record = debloat(
                 self.appname, module, filtered_attributes
             )
-            self.stats[module].set_path(module_path)
-            self.stats[module].set_debloating_stats(delta_record)
+            self.stats.set_path(module, module_path)
+            self.stats.set_debloating_stats(module, delta_record)
 
             # TODO: Add stats collection
             # Re-import to update alive_modules
@@ -143,7 +151,17 @@ class Debloater:
 
         # Step 7 - Collect statistics
 
-        # Run profiler again to collect statistics
+        # Step 7.1 - Run profiler
         final_report = run_profiler(imported_modules)
         logger.info("Final report after debloating:")
         logger.info(pp(final_report))
+
+        # Step 7.2 - Get statistics for alive modules
+        for module in alive_modules:
+            entry = final_report[module]
+            self.stats.set_profiling_stats(
+                module=module, memory=entry["memory"], time=entry["time"], before=True
+            )
+
+        # Step 7.3 - Convert to CSV
+        self.stats.convert_to_csv()
