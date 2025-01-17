@@ -19,7 +19,6 @@ class DeltaDebugger:
     """
 
     def __init__(self, target, module_name, marked_attributes, test_cases="data.json"):
-
         # Attributes that must be kept
         self.marked_attrs = marked_attributes
 
@@ -72,9 +71,7 @@ class DeltaDebugger:
         self.iterations += 1
 
         if log:
-
             try:
-
                 modified_ast = self.moduifier.modify(attributes, remove=False)
 
                 iteration_dir = (
@@ -94,7 +91,6 @@ class DeltaDebugger:
                         file.write(f"{item}\n")
 
             except Exception as e:
-
                 self.logger.error("Error modifying module: %s", e)
                 print(f"Error modifying module: {e}")
 
@@ -144,13 +140,10 @@ class DeltaDebugger:
         attrs_before = len(remaining_attrs)
 
         while n <= len(remaining_attrs):
-
             us = list(chunks(remaining_attrs, n))
 
             try:
-
                 for i in range(n):
-
                     attributes = us[i]
 
                     self.logger.info("Trying partition %s", attributes)
@@ -160,9 +153,7 @@ class DeltaDebugger:
                         raise Found
 
                 if n > 2:
-
                     for i in range(n):
-
                         coattributes = us.copy()
                         coattributes.pop(i)
                         coattributes = flatten(coattributes)

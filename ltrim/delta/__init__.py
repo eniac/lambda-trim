@@ -7,7 +7,6 @@ __all__ = ["DeltaDebugger", "PyLambdaRunner"]
 
 
 def main():
-
     parser = argparse.ArgumentParser(
         description="""
         Run Delta Debugging on a module with a target program and a

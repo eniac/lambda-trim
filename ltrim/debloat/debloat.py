@@ -31,7 +31,6 @@ class Debloater:
         self.stats = Stats(self.appname, self.top_K)
 
     def debloat(self):
-
         with open(self.appname, "r") as f:
             source = f.read()
 
@@ -62,7 +61,6 @@ class Debloater:
         imported_modules = []
 
         for module_name in imports_finder.imports:
-
             if module_name in blacklist:
                 continue
 
@@ -122,7 +120,6 @@ class Debloater:
         alive_modules = set(modules_to_debloat)
 
         for midx, module in enumerate(modules_to_debloat):
-
             print(f"Debloating module {module} ({midx + 1}/{self.top_K})")
 
             if module not in alive_modules:

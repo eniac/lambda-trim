@@ -48,7 +48,6 @@ class Moduify:
     """
 
     def __init__(self, module_name, marked_attributes):
-
         self.module_name = module_name
 
         # Load the module

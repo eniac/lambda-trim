@@ -14,7 +14,7 @@ class Stats:
 
     def __init__(self, appname, top_K):
         self.stats = {}
-        self.appname = appname.strip(".py")
+        self.appname = appname.removesuffix(".py")
         self.top_K = top_K
 
     def add_module(self, module):
@@ -74,7 +74,6 @@ class Stats:
         ]
 
         with open(filename, mode="w", encoding="utf-8") as file:
-
             writer = csv.DictWriter(file, fieldnames=keys)
             writer.writeheader()
 

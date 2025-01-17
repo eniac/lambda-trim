@@ -3,7 +3,6 @@ import importlib.util
 import json
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser(
         description="Driver for running test cases for Lambda functions",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -48,7 +47,6 @@ if __name__ == "__main__":
 
     # open data.json file
     with open(args.test) as f:
-
         data = json.load(f)
 
         for entry in data["tests"]:

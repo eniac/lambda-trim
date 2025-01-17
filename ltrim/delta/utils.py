@@ -15,7 +15,6 @@ class PyLambdaRunner:
         self.test_cases = test_cases
 
     def run(self):
-
         try:
             process = subprocess.run(
                 [
@@ -70,7 +69,8 @@ def chunks(xs, n):
     k, m = divmod(len(xs), n)
     return (
         # fmt: off
-        xs[i * k + min(i, m): (i + 1) * k + min(i + 1, m)] for i in range(n)
+        xs[i * k + min(i, m) : (i + 1) * k + min(i + 1, m)]
+        for i in range(n)
         # fmt: on
     )
 

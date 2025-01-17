@@ -12,7 +12,6 @@ logging.basicConfig(
 
 
 def main():
-
     parser = argparse.ArgumentParser(
         prog="Debloat a Python package",
         description="""Debloat a Python application by removing unused
