@@ -2,10 +2,15 @@ import argparse
 import logging
 
 from ltrim.debloat.debloat import Debloater
+from ltrim.utils import mkdirp
+
+# Create the log directory if it doesn't exist
+mkdirp("log")
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
     filename="log/debloat.log",
+    filemode="w",
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.INFO,
 )
@@ -13,7 +18,7 @@ logging.basicConfig(
 
 def main():
     parser = argparse.ArgumentParser(
-        prog="Debloat a Python package",
+        prog="debloat",
         description="""Debloat a Python application by removing unused
         attributes of imported modules.""",
         epilog="""Developed and maintained by Spyros Pavlatos. Originally created
