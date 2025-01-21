@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-driver_path = os.path.abspath(__file__).replace("utils.py", "driver.py")
+driver_path = os.path.dirname(__file__) + "/driver.py"
 
 
 class Found(Exception):
@@ -9,6 +9,14 @@ class Found(Exception):
 
 
 class PyLambdaRunner:
+    """
+    Class to run a Python file with a handler function and test cases.
+
+    :param file_path: The path to the Python file to run
+    :param handler: The handler function to run
+    :param test_cases: The test cases to run
+    """
+
     def __init__(self, file_path, handler="handler", test_cases="data.json"):
         self.file_path = file_path
         self.handler = handler
@@ -33,30 +41,6 @@ class PyLambdaRunner:
             return process
         except subprocess.CalledProcessError as e:
             return e
-
-
-def run_target(target: str, input: str = None):
-    """
-    Run the target program and return the process object
-
-    :param target: The target program
-    :param input: JSON file containing test cases for the program
-    """
-
-    try:
-        if input is not None:
-            pass
-        else:
-            process = subprocess.run(
-                ["python", target, "2>>", "log/error.log"],
-                capture_output=True,
-                check=True,
-            )
-            return process
-
-    except subprocess.CalledProcessError as e:
-        print(e)
-        return e
 
 
 def chunks(xs, n):
