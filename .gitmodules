@@ -1,0 +1,3 @@
+[submodule "serverless-bench"]
+	path = serverless-bench
+	url = https://github.com/spyrospav/serverless-bench
