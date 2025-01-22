@@ -4,7 +4,7 @@ ARG APPNAME
 
 COPY ./dist/ltrim-0.1.0-py3-none-any.whl ${LAMBDA_TASK_ROOT}/ltrim-0.1.0-py3-none-any.whl
 
-COPY serverless-examples/examples/${APPNAME}/ ${LAMBDA_TASK_ROOT}/
+COPY serverless-bench/examples/${APPNAME}/ ${LAMBDA_TASK_ROOT}/
 
 RUN yum update -y
 
