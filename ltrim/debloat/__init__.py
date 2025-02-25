@@ -39,10 +39,22 @@ def main():
         help="The scoring method to calculate the top K ranking of the modules.",
     )
 
+    # Disable PyCG flag
+    parser.add_argument(
+        "--no-pycg",
+        action="store_true",
+        help="""Do not use PyCG for the debloating
+        process. This will result in a slower debloating
+        process.""",
+    )
+
     args = parser.parse_args()
 
     debloater = Debloater(
-        filename=args.filename, top_K=args.top_K, scoring=args.scoring
+        filename=args.filename,
+        top_K=args.top_K,
+        scoring=args.scoring,
+        disable_pycg=args.no_pycg,
     )
 
     debloater.debloat()

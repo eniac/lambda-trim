@@ -24,11 +24,12 @@ class Debloater:
     :param scoring: The scoring method to calculate the top K ranking of the modules
     """
 
-    def __init__(self, filename, top_K, scoring):
+    def __init__(self, filename, top_K, scoring, disable_pycg):
         self.appname = filename
         self.top_K = top_K
         self.scoring = scoring
         self.stats = Stats(self.appname, self.top_K)
+        self.pycg = not disable_pycg
 
     def debloat(self):
         with open(self.appname, "r") as f:
@@ -48,10 +49,13 @@ class Debloater:
         logger.info(f"Imports found: {imports_finder.imports}")
 
         # Step 2: Use PyCG to extract the call graph of the application
-        print("Extracting call graph...")
-        call_graph = run_pycg(self.appname)
-        print("Call graph extracted!")
-        logger.info(f"Call graph extracted: {call_graph}")
+        if self.pycg:
+            print("Extracting call graph...")
+            call_graph = run_pycg(self.appname)
+            print("Call graph extracted!")
+            logger.info(f"Call graph extracted: {call_graph}")
+        else:
+            call_graph = []
 
         # --------------------------------------------------------------------- #
         # ------------------------ Constructing Phase ------------------------- #
