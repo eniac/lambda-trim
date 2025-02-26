@@ -1,5 +1,6 @@
 import ast
 import logging
+import sys
 from pprint import pformat as pp
 
 from ltrim.debloat.process import debloat, run_profiler, run_pycg
@@ -49,7 +50,7 @@ class Debloater:
         logger.info(f"Imports found: {imports_finder.imports}")
 
         # Step 2: Use PyCG to extract the call graph of the application
-        if self.pycg:
+        if sys.version_info <= 10 and self.pycg:
             print("Extracting call graph...")
             call_graph = run_pycg(self.appname)
             print("Call graph extracted!")
