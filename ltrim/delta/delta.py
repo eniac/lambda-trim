@@ -122,7 +122,7 @@ class DeltaDebugger:
 
         if self.moduifier.ast is None:
             print("Module is not a Python file")
-            return []
+            return [], DeltaRecord((0, 0, 0))
 
         print("Running Delta Debugging for module " + self.module_name)
 
