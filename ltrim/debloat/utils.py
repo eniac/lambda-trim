@@ -124,6 +124,6 @@ def update_alive_modules(alive_modules, report):
     :param alive_modules: The set of alive modules
     :param report: The profiling report
     """
-    for module in alive_modules:
-        if module not in report:
-            alive_modules.discard(module)
+    modules_to_remove = [module for module in alive_modules if module not in report]
+    for module in modules_to_remove:
+        alive_modules.discard(module)

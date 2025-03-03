@@ -142,9 +142,8 @@ class Debloater:
             self.stats.set_path(module, module_path)
             self.stats.set_debloating_stats(module, delta_record)
 
-            # TODO: Add stats collection
             # Re-import to update alive_modules
-            new_report = run_profiler(modules_to_debloat)
+            new_report = run_profiler(imported_modules)
             update_alive_modules(alive_modules, new_report)
 
         # --------------------------------------------------------------------- #

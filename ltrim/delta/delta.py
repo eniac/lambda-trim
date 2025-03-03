@@ -99,7 +99,6 @@ class DeltaDebugger:
         process = self.runner.run()
 
         if process.returncode == 0:
-            self.logger.info("Output: %s", str(process.stdout, "utf-8"))
             output = str(process.stdout, "utf-8")
 
             if output != self.original_output:
@@ -233,5 +232,8 @@ class DeltaDebugger:
 
         if local:
             self.moduifier.restore_original_directory()
+
+        with open(m_path, "a") as file:
+            file.write("\n# Debloated\n")
 
         return m_path
