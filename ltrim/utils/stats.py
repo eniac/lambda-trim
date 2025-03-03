@@ -93,7 +93,16 @@ class ModuleRecord:
 
     def __init__(self, module_name):
         self.module_name = module_name
-        self.stats = {}
+        self.stats = {
+            "Pre Memory": 0,
+            "Pre Import Time": 0,
+            "Post Memory": 0,
+            "Post Import Time": 0,
+            "Debloat Time": 0,
+            "Pre Attributes": 0,
+            "Removed Attributes": 0,
+            "Path": "",
+        }
         self.path = None
 
     def set_profiling_stats(self, memory, time, order):
