@@ -171,7 +171,7 @@ class DeltaDebugger:
 
         end = time.time()
         debloat_time = end - start
-        print(f"Total time taken to debloat {self.module_name}: {debloat_time:.2f}ms")
+        print(f"Total time taken to debloat {self.module_name}: {debloat_time:.2f}s")
 
         self.logger.info("Remanining attributes: %s", remaining_attrs)
 
