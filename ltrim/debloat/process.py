@@ -1,8 +1,8 @@
 import importlib
 
-from pycg import formats
-from pycg.pycg import CallGraphGenerator
-from pycg.utils.constants import CALL_GRAPH_OP
+from pycgl import formats
+from pycgl.pycg import CallGraphGenerator
+from pycgl.utils.constants import CALL_GRAPH_OP
 
 from ltrim.debloat.utils import isolate
 from ltrim.delta import DeltaDebugger

@@ -2,7 +2,7 @@
 
 λ-trim is a debloater for Python applications. Given a Python function and a set of inputs to this function λ-trim automatically removes all redundant modules, functions and classes from the modules that the application imports.
 
-# Installation
+## Installation
 
 Install λ-trim from [PyPI](https://pypi.org/project/uv/):
 
@@ -10,7 +10,9 @@ Install λ-trim from [PyPI](https://pypi.org/project/uv/):
 pip install ltrim
 ```
 
-# Usage
+## Usage
+
+### Basic Usage
 
 To run the debloater against a Python script `file.py`, a testcase file with a specific structure is needed (see [Test cases format](https://github.com/eniac/serverless-bench?tab=readme-ov-file#test-cases-format) from our accompanying benchmark repository).
 
@@ -24,7 +26,7 @@ By default, λ-trim assumes the existence of the testcases fike under the name `
 debloat /path/to/code/file.py -t /path/to/code/data.json
 ```
 
-## Scoring Methods
+### Scoring Methods
 
 Users can specify the number of modules that they want to debloat by using the `-k` flag.
 Additionally, the ranking of the top K modules can be set by using the `-s, --scoring` flag.
@@ -37,7 +39,20 @@ Additionally, the ranking of the top K modules can be set by using the `-s, --sc
 
 Users can provide their own custom scoring functions by extending the `scoring` function in `ltrim/debloat/utils`.
 
-# License
+## Citation
+
+Please use the following citation when reffering to the source code and/or the accompanying paper
+
+```bibtex
+@article{pavlatos2025lambdatrim,
+  title={𝜆-trim: Reducing Monetary and Performance Cost of Serverless Cold Starts with Cost-driven Application Debloating},
+  author={Liu, Xuting and Pavlatos, Spyros and Liu, Yuhao and Liu, Vincent},
+  journal={UNDER SUBMISSION},
+  year={2025}
+}
+```
+
+## License
 
 This project is licensed under the GNU General Public License v3.0.
 
