@@ -2,7 +2,7 @@ import argparse
 import logging
 
 from ltrim.debloat.debloat import Debloater
-from ltrim.utils import cmd_message, mkdirp
+from ltrim.utils import mkdirp
 
 # Create the log directory if it doesn't exist
 mkdirp("log")
@@ -43,7 +43,7 @@ def main():
         "-s",
         "--scoring",
         default="cost",
-        choices=["cost", "time", "memory", "random"],
+        choices=["cost", "time", "memory", "random", "custom"],
         help="The scoring method to calculate the top K ranking of the modules.",
     )
 
@@ -67,12 +67,3 @@ def main():
     )
 
     debloater.run()
-
-    # --------------------------------------------------------------------- #
-    # ------------------------------- Done -------------------------------- #
-    # --------------------------------------------------------------------- #
-
-    cmd_message("Debloating process completed successfully!", "success")
-    cmd_message(
-        f"For detailed statistics, check log/{args.filename}_{args.top_K}_stats.csv"
-    )

@@ -69,6 +69,8 @@ def scoring(method, t, m, T, M):
         return (T - t) * m + t * M
     elif method == "random":
         return random.random()
+    elif method == "custom":
+        pass  # Placeholder for custom scoring method
     else:
         raise ValueError(
             "Invalid scoring method. Choose from 'time', 'memory', 'cost' or 'random'."

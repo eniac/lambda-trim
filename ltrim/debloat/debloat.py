@@ -165,3 +165,11 @@ class Debloater:
 
         # Step 7.3 - Convert to CSV
         self.stats.convert_to_csv()
+
+        # --------------------------------------------------------------------- #
+        # ------------------------------- Done -------------------------------- #
+        # --------------------------------------------------------------------- #
+
+        cmd_message("Debloating process completed successfully!", "success")
+
+        cmd_message("For detailed statistics, check log/ directory")
