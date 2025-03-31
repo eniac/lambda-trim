@@ -11,7 +11,7 @@ from ltrim.debloat.utils import (
     update_alive_modules,
 )
 from ltrim.transformers import ImportsFinder
-from ltrim.utils.stats import Stats
+from ltrim.utils import Stats, cmd_message
 
 logger = logging.getLogger(__name__)
 
@@ -25,14 +25,15 @@ class Debloater:
     :param scoring: The scoring method to calculate the top K ranking of the modules
     """
 
-    def __init__(self, filename, top_K, scoring, disable_pycg):
+    def __init__(self, filename, top_K, scoring, disable_pycg, testcases="data.json"):
         self.appname = filename
         self.top_K = top_K
         self.scoring = scoring
         self.stats = Stats(self.appname, self.top_K)
         self.pycg = not disable_pycg
+        self.testcases = testcases
 
-    def debloat(self):
+    def run(self):
         with open(self.appname, "r") as f:
             source = f.read()
 
@@ -43,17 +44,17 @@ class Debloater:
         # --------------------------------------------------------------------- #
 
         # Step 1: Find imported modules
-        print("Finding imports...")
+        cmd_message("Finding imports...")
         imports_finder = ImportsFinder()
         imports_finder.visit(ast_source)
-        print("Imports found!")
+        cmd_message("Imports found!", "success")
         logger.info(f"Imports found: {imports_finder.imports}")
 
         # Step 2: Use PyCG to extract the call graph of the application
         if sys.version_info.minor <= 10 and self.pycg:
-            print("Extracting call graph...")
+            cmd_message("Extracting call graph...")
             call_graph = run_pycg(self.appname)
-            print("Call graph extracted!")
+            cmd_message("Call graph extracted!", "success")
             logger.info(f"Call graph extracted: {call_graph}")
         else:
             call_graph = []
@@ -73,14 +74,12 @@ class Debloater:
 
         logger.info(f"Filtered imports: {imported_modules}")
 
-        # TODO: Check if there are duplicates in the imported modules
-
         # --------------------------------------------------------------------- #
         # ------------------------- Profiling Phase --------------------------- #
         # --------------------------------------------------------------------- #
 
         # Step 4: Profile the import process of the application
-        print("Profiling the import process...")
+        cmd_message("Profiling the import process...")
         report = run_profiler(imported_modules)
 
         # Extract the total memory used by the imported modules
@@ -92,8 +91,8 @@ class Debloater:
             [report[module]["time"] for module in imported_modules if module in report]
         )
 
-        print(f"Total memory used in the import process: {total_memory:.2f}MB")
-        print(f"Total time taken for the import process: {total_time:.2f}ms")
+        cmd_message(f"Total memory used in the import process: {total_memory:.2f}MB")
+        cmd_message(f"Total time taken for the import process: {total_time:.2f}ms")
 
         # Step 5 - Sort the profiler report using the scoring method
         sorted_report = sort_report(report, self.scoring, total_time, total_memory)
@@ -103,7 +102,7 @@ class Debloater:
             module for module in sorted_report if module[0] not in blacklist
         ]
         logger.info(pp(sorted_report[: self.top_K]))
-        print("Profiling completed!")
+        cmd_message("Profiling completed!", "success")
 
         # --------------------------------------------------------------------- #
         # ------------------------- Debloating Phase -------------------------- #
@@ -117,7 +116,7 @@ class Debloater:
         for module, entry in sorted_report[: self.top_K]:
             modules_to_debloat.append(module)
             self.stats.add_module(module)
-            print(entry)
+            cmd_message(f"Module {module}: {entry}")
             self.stats.set_profiling_stats(
                 module=module, memory=entry["memory"], time=entry["time"], before=False
             )
@@ -125,10 +124,10 @@ class Debloater:
         alive_modules = set(modules_to_debloat)
 
         for midx, module in enumerate(modules_to_debloat):
-            print(f"Debloating module {module} ({midx + 1}/{self.top_K})")
+            cmd_message(f"Debloating module {module} ({midx + 1}/{self.top_K})", "info")
 
             if module not in alive_modules:
-                print(f"Module {module} is not longer needed!")
+                cmd_message(f"Module {module} is not longer needed!")
                 continue
 
             # Step 6.1 - Filter the PyCG attributes

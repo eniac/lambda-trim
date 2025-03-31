@@ -6,7 +6,7 @@ import time
 
 from ltrim.delta.utils import Found, PyLambdaRunner, chunks, flatten
 from ltrim.moduify import Moduify
-from ltrim.utils import MAGIC_ATTRIBUTES, DeltaRecord, mkdirp
+from ltrim.utils import MAGIC_ATTRIBUTES, DeltaRecord, cmd_message, mkdirp
 
 
 class DeltaDebugger:
@@ -92,7 +92,7 @@ class DeltaDebugger:
 
             except Exception as e:
                 self.logger.error("Error modifying module: %s", e)
-                print(f"Error modifying module: {e}")
+                cmd_message(f"Error modifying module: {e}", "error")
 
                 return False
 
@@ -120,10 +120,10 @@ class DeltaDebugger:
         start = time.time()
 
         if self.moduifier.ast is None:
-            print("Module is not a Python file")
+            cmd_message("Module is not a Python file")
             return [], DeltaRecord((0, 0, 0))
 
-        print("Running Delta Debugging for module " + self.module_name)
+        cmd_message("Running Delta Debugging for module " + self.module_name)
 
         self.logger.info("Running DeltaDebugging for module %s", self.module_name)
         self.logger.info("Necessary attributes: %s", self.marked_attrs)
@@ -171,13 +171,17 @@ class DeltaDebugger:
 
         end = time.time()
         debloat_time = end - start
-        print(f"Total time taken to debloat {self.module_name}: {debloat_time:.2f}s")
+        cmd_message(
+            f"Total time taken to debloat {self.module_name}: {debloat_time:.2f}s"
+        )
 
         self.logger.info("Remanining attributes: %s", remaining_attrs)
 
         attrs_after = len(remaining_attrs)
         removed = attrs_before - attrs_after
-        print(f"Removed {removed} attributes {(removed / all_attributes * 100):.2f}%.")
+        cmd_message(
+            f"Removed {removed} attributes {(removed / all_attributes * 100):.2f}%."
+        )
 
         delta_record = DeltaRecord((debloat_time, all_attributes, attrs_after))
 
@@ -233,6 +237,7 @@ class DeltaDebugger:
         if local:
             self.moduifier.restore_original_directory()
 
+        # Debloat stub
         with open(m_path, "a") as file:
             file.write("\n# Debloated\n")
 

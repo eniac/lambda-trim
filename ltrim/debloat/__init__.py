@@ -2,7 +2,7 @@ import argparse
 import logging
 
 from ltrim.debloat.debloat import Debloater
-from ltrim.utils import mkdirp
+from ltrim.utils import cmd_message, mkdirp
 
 # Create the log directory if it doesn't exist
 mkdirp("log")
@@ -32,6 +32,14 @@ def main():
     )
 
     parser.add_argument(
+        "-t",
+        "--testcases",
+        type=str,
+        default="data.json",
+        help="Path to the testcases file.",
+    )
+
+    parser.add_argument(
         "-s",
         "--scoring",
         default="cost",
@@ -55,13 +63,16 @@ def main():
         top_K=args.top_K,
         scoring=args.scoring,
         disable_pycg=args.no_pycg,
+        testcases=args.testcases,
     )
 
-    debloater.debloat()
+    debloater.run()
 
     # --------------------------------------------------------------------- #
     # ------------------------------- Done -------------------------------- #
     # --------------------------------------------------------------------- #
 
-    print("Debloating process completed successfully!")
-    print("For detailed statistics, check the logs.")
+    cmd_message("Debloating process completed successfully!", "success")
+    cmd_message(
+        f"For detailed statistics, check log/{args.filename}_{args.top_K}_stats.csv"
+    )
