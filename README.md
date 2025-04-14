@@ -14,10 +14,10 @@ pip install ltrim
 
 ### Basic Usage
 
-To run the debloater against a Python script `file.py`, a testcase file with a specific structure is needed (see [Test cases format](https://github.com/eniac/serverless-bench?tab=readme-ov-file#test-cases-format) from our accompanying benchmark repository).
+To run the debloater against a Python script `file.py` with an entry point (*lambda handler* in the case of serverless) `handler`, a testcase file with a specific structure is needed (see [Test cases format](https://github.com/eniac/serverless-bench?tab=readme-ov-file#test-cases-format) from our accompanying benchmark repository).
 
 ```bash
-debloat /path/to/code/file.py
+debloat --handler handler /path/to/code/file.py
 ```
 
 By default, λ-trim assumes the existence of the testcases fike under the name `data.json` in the current working directory. You can also specify the path to this file with the `-t, --testcases` flag, like:

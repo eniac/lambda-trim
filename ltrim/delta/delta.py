@@ -6,7 +6,7 @@ import time
 
 from ltrim.delta.utils import Found, PyLambdaRunner, chunks, flatten
 from ltrim.moduify import Moduify
-from ltrim.utils import MAGIC_ATTRIBUTES, DeltaRecord, cmd_message, mkdirp
+from ltrim.utils import MAGIC_ATTRIBUTES, Config, DeltaRecord, cmd_message, mkdirp
 
 
 class DeltaDebugger:
@@ -18,7 +18,14 @@ class DeltaDebugger:
     :param marked_attributes: Attributes that must be kept
     """
 
-    def __init__(self, target, module_name, marked_attributes, test_cases="data.json"):
+    def __init__(
+        self,
+        config: Config,
+        module_name,
+        marked_attributes,
+    ):
+        self.config = config
+        self.target = config.appname
         # Attributes that must be kept
         self.marked_attrs = marked_attributes
 
@@ -47,7 +54,7 @@ class DeltaDebugger:
         mkdirp("log/" + self.module_name + "/iterations")
 
         # Instace of driver for running the target program
-        self.runner = PyLambdaRunner(file_path=target, test_cases=test_cases)
+        self.runner = PyLambdaRunner(config=self.config)
 
         process = self.runner.run()
 

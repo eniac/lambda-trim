@@ -1,13 +1,14 @@
 version = 1
+revision = 1
 requires-python = ">=3.10"
 
 [[package]]
 name = "ltrim"
-version = "0.1.0"
+version = "0.1.2"
 source = { virtual = "." }
 dependencies = [
     { name = "psutil" },
-    { name = "pycg" },
+    { name = "pycg-fork" },
     { name = "ruff" },
     { name = "setuptools" },
 ]
@@ -15,7 +16,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "psutil", specifier = ">=6.1.1" },
-    { name = "pycg", git = "https://github.com/vitsalis/pycg" },
+    { name = "pycg-fork" },
     { name = "ruff", specifier = ">=0.9.2" },
     { name = "setuptools", specifier = ">=75.8.0" },
 ]
@@ -36,9 +37,13 @@ wheels = [
 ]
 
 [[package]]
-name = "pycg"
+name = "pycg-fork"
 version = "0.0.8"
-source = { git = "https://github.com/vitsalis/pycg#8d5dc40837803beef1d8d379fbf2cdad6cd94641" }
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/e3/77/d3ddd6571e96833a87e24db13d3c65967f8c7f69d60948b904f075a97f80/pycg_fork-0.0.8.tar.gz", hash = "sha256:d6014aab99a4060dc0a827757d790f1840badb484ee9aa0c9f6b4f6ed2a4b5f0", size = 59890 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1f/c2/461a3c06f5a8e3447bae3e5e4264c03369918af2f65c3d22af3846d63aae/pycg_fork-0.0.8-py3-none-any.whl", hash = "sha256:7d7a943bc5602cce8c37e2141222b595dc0f60bb2e7dbc509c3a03cf3828297b", size = 61364 },
+]
 
 [[package]]
 name = "ruff"

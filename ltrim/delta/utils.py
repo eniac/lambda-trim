@@ -1,6 +1,8 @@
 import os
 import subprocess
 
+from ltrim.utils import Config
+
 driver_path = os.path.dirname(__file__) + "/driver.py"
 
 
@@ -17,10 +19,10 @@ class PyLambdaRunner:
     :param test_cases: The test cases to run
     """
 
-    def __init__(self, file_path, handler="handler", test_cases="data.json"):
-        self.file_path = file_path
-        self.handler = handler
-        self.test_cases = test_cases
+    def __init__(self, config: Config):
+        self.file_path = config.appname
+        self.handler = config.handler
+        self.test_cases = config.test_cases
 
     def run(self):
         try:

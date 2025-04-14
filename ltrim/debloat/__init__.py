@@ -1,19 +1,7 @@
 import argparse
-import logging
 
 from ltrim.debloat.debloat import Debloater
-from ltrim.utils import mkdirp
-
-# Create the log directory if it doesn't exist
-mkdirp("log")
-
-logger = logging.getLogger(__name__)
-logging.basicConfig(
-    filename="log/debloat.log",
-    filemode="w",
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO,
-)
+from ltrim.utils import Config
 
 
 def main():
@@ -47,6 +35,14 @@ def main():
         help="The scoring method to calculate the top K ranking of the modules.",
     )
 
+    parser.add_argument(
+        "-H",
+        "--handler",
+        default="handler",
+        help="""The name of the function handler.
+        This should be the entry point of the application""",
+    )
+
     # Disable PyCG flag
     parser.add_argument(
         "--no-pycg",
@@ -58,12 +54,18 @@ def main():
 
     args = parser.parse_args()
 
+    # create a configuration
+    config = Config(
+        appname=args.filename,
+        handler=args.handler,
+        test_cases=args.testcases,
+    )
+
     debloater = Debloater(
-        filename=args.filename,
+        config=config,
         top_K=args.top_K,
         scoring=args.scoring,
         disable_pycg=args.no_pycg,
-        testcases=args.testcases,
     )
 
     debloater.run()

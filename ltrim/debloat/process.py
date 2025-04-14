@@ -7,6 +7,7 @@ from pycgl.utils.constants import CALL_GRAPH_OP
 from ltrim.debloat.utils import isolate
 from ltrim.delta import DeltaDebugger
 from ltrim.profiler import get_memory_usage, profiler
+from ltrim.utils import Config
 
 
 @isolate
@@ -49,7 +50,7 @@ def run_profiler(modules):
 
 
 @isolate
-def debloat(target, module, marked_attributes):
+def debloat(config: Config, module, marked_attributes):
     """
     Run the DeltaDebugger to debloat a module imported from the target program.
 
@@ -58,7 +59,7 @@ def debloat(target, module, marked_attributes):
     :param marked_attributes: The marked attributes to keep
     """
 
-    delta_debugger = DeltaDebugger(target, module, marked_attributes)
+    delta_debugger = DeltaDebugger(config, module, marked_attributes)
 
     debloated_attributes, delta_record = delta_debugger.delta_debug(log=True)
 

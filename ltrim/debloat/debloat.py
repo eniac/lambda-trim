@@ -11,9 +11,18 @@ from ltrim.debloat.utils import (
     update_alive_modules,
 )
 from ltrim.transformers import ImportsFinder
-from ltrim.utils import Stats, cmd_message
+from ltrim.utils import Config, Stats, cmd_message, mkdirp
+
+# Create the log directory if it doesn't exist
+mkdirp("log")
 
 logger = logging.getLogger(__name__)
+logging.basicConfig(
+    filename="log/debloat.log",
+    filemode="w",
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO,
+)
 
 
 class Debloater:
@@ -25,13 +34,19 @@ class Debloater:
     :param scoring: The scoring method to calculate the top K ranking of the modules
     """
 
-    def __init__(self, filename, top_K, scoring, disable_pycg, testcases="data.json"):
-        self.appname = filename
+    def __init__(
+        self,
+        config: Config,
+        top_K,
+        scoring,
+        disable_pycg,
+    ):
+        self.config = config
+        self.appname = config.appname
         self.top_K = top_K
         self.scoring = scoring
         self.stats = Stats(self.appname, self.top_K)
         self.pycg = not disable_pycg
-        self.testcases = testcases
 
     def run(self):
         with open(self.appname, "r") as f:
@@ -136,7 +151,9 @@ class Debloater:
 
             # Step 6.2 - Debloat the module
             module_path, delta_record = debloat(
-                self.appname, module, filtered_attributes
+                config=self.config,
+                module=module,
+                marked_attributes=filtered_attributes,
             )
             self.stats.set_path(module, module_path)
             self.stats.set_debloating_stats(module, delta_record)
