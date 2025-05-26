@@ -1,7 +1,7 @@
 [project]
 name = "ltrim"
 version = "0.1.2"
-description = "Add your description here"
+description = "ASPLOS'25 AE branch for λ-trim"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
