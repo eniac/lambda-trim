@@ -19,6 +19,13 @@ else:
         "re",
         "json",
         "time",
+        "requests",
+        "torch._dynamo",
+        "torch._prims",
+        "torch._dynamo.convert_frame",
+        "torch._dynamo.trace_rules",
+        "torch._dynamo.variables",
+        "torch._dynamo.variables.builtin",
     ]
 
 
