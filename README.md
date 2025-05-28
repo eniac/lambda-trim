@@ -6,23 +6,31 @@
 
 Install λ-trim from [PyPI](https://pypi.org/project/uv/):
 
-```bash
+```shell
 pip install ltrim
 ```
 
 ## Usage
 
+**Imporant Note** - λ-trim modifies the `site-packages` directory of your Python installation.
+As such, we highly recommend to create a Python virtual environment before using λ-trim.
+You can do this easily by running:
+
+```shell
+python -m venv ltrim-venv
+```
+
 ### Basic Usage
 
 To run the debloater against a Python script `file.py` with an entry point (*lambda handler* in the case of serverless) `handler`, a testcase file with a specific structure is needed (see [Test cases format](https://github.com/eniac/serverless-bench?tab=readme-ov-file#test-cases-format) from our accompanying benchmark repository).
 
-```bash
+```shell
 debloat --handler handler /path/to/code/file.py
 ```
 
-By default, λ-trim assumes the existence of the testcases fike under the name `data.json` in the current working directory. You can also specify the path to this file with the `-t, --testcases` flag, like:
+By default, λ-trim assumes the existence of the testcases file under the name `data.json` in the current working directory. You can also specify the path to this file with the `-t, --testcases` flag, like:
 
-```bash
+```shell
 debloat /path/to/code/file.py -t /path/to/code/data.json
 ```
 
@@ -47,7 +55,7 @@ Please use the following citation when reffering to the source code and/or the a
 @article{pavlatos2025lambdatrim,
   title={𝜆-trim: Reducing Monetary and Performance Cost of Serverless Cold Starts with Cost-driven Application Debloating},
   author={Liu, Xuting and Pavlatos, Spyros and Liu, Yuhao and Liu, Vincent},
-  journal={UNDER SUBMISSION},
+  journal={ASPLOS},
   year={2025}
 }
 ```
