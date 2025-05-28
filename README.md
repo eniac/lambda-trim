@@ -13,11 +13,12 @@ pip install ltrim
 ## Usage
 
 **Imporant Note** - λ-trim modifies the `site-packages` directory of your Python installation.
-As such, we highly recommend to create a Python virtual environment before using λ-trim.
+As such, we highly recommend to create and activate a Python virtual environment before using λ-trim.
 You can do this easily by running:
 
 ```shell
 python -m venv ltrim-venv
+source ltrim-venv/bin/activate
 ```
 
 ### Basic Usage
