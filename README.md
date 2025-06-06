@@ -4,7 +4,7 @@
 
 ## Installation
 
-Install λ-trim from [PyPI](https://pypi.org/project/uv/):
+Install λ-trim from [PyPI](https://pypi.org/project/ltrim/):
 
 ```shell
 pip install ltrim
